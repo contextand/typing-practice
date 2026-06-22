@@ -191,9 +191,7 @@ function render() {
   const target = current.text;
   let html = '';
   for (let i = 0; i < target.length; i++) {
-    const ch = target[i] === '
-' ? '↵
-' : target[i];
+    const ch = target[i] === '\n' ? '↵\n' : target[i];
     let cls = 'pending';
     if (i < typed.length) {
       cls = typed[i] === target[i] ? 'correct' : 'wrong';

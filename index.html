@@ -42,16 +42,19 @@
     position: relative;
   }
 
-  .char.correct { color: #aaa; }
-  .char.wrong { color: #e55; background: #fee; border-radius: 2px; }
-  .char.pending { color: #1a1a1a; }
-  .char.cursor::after {
+  .char.correct { color: #1a1a1a; }
+  .char.wrong { color: #aaa; }
+  .char.pending { color: #aaa; }
+  .char.cursor {
+    position: relative;
+  }
+  .char.cursor::before {
     content: '';
     position: absolute;
-    left: 0;
-    bottom: 1px;
-    width: 100%;
-    height: 2px;
+    left: -1px;
+    top: 0.15em;
+    bottom: 0.1em;
+    width: 2px;
     background: #1a1a1a;
     animation: blink 0.8s step-end infinite;
   }
@@ -191,14 +194,18 @@ function render() {
   const target = current.text;
   let html = '';
   for (let i = 0; i < target.length; i++) {
-    const ch = target[i] === '\n' ? '↵\n' : target[i];
     let cls = 'pending';
+    let displayCh;
     if (i < typed.length) {
-      cls = typed[i] === target[i] ? 'correct' : 'wrong';
-    } else if (i === typed.length) {
-      cls = 'cursor';
+      const isCorrect = typed[i] === target[i];
+      cls = isCorrect ? 'correct' : 'wrong';
+      displayCh = isCorrect ? target[i] : typed[i];
+    } else {
+      displayCh = target[i];
+      if (i === typed.length) cls = 'cursor';
     }
-    html += `<span class="char ${cls}">${ch.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
+    if (displayCh === '\n') displayCh = '↵\n';
+    html += `<span class="char ${cls}">${displayCh.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
   }
   passageText.innerHTML = html;
 

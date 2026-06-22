@@ -43,12 +43,19 @@
   }
 
   .char.correct { color: #1a1a1a; }
-  .char.wrong { color: #aaa; }
+  .char.wrong { color: #666; }
   .char.pending { color: #aaa; }
-  .char.cursor {
-    position: relative;
+  .char.cursor-after::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 0.15em;
+    bottom: 0.1em;
+    width: 2px;
+    background: #1a1a1a;
+    animation: blink 0.8s step-end infinite;
   }
-  .char.cursor::before {
+  .char.cursor-before::before {
     content: '';
     position: absolute;
     left: -1px;
@@ -192,20 +199,18 @@ function pick() {
 
 function render() {
   const target = current.text;
+  const cursorAfterIdx = typed.length - 1;
+  const cursorBeforeIdx = typed.length === 0 ? 0 : -1;
   let html = '';
   for (let i = 0; i < target.length; i++) {
     let cls = 'pending';
-    let displayCh;
     if (i < typed.length) {
-      const isCorrect = typed[i] === target[i];
-      cls = isCorrect ? 'correct' : 'wrong';
-      displayCh = isCorrect ? target[i] : typed[i];
-    } else {
-      displayCh = target[i];
-      if (i === typed.length) cls = 'cursor';
+      cls = typed[i] === target[i] ? 'correct' : 'wrong';
     }
-    if (displayCh === '\n') displayCh = '↵\n';
-    html += `<span class="char ${cls}">${displayCh.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
+    if (i === cursorAfterIdx) cls += ' cursor-after';
+    else if (i === cursorBeforeIdx) cls += ' cursor-before';
+    const ch = target[i] === '\n' ? '↵\n' : target[i];
+    html += `<span class="char ${cls}">${ch.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
   }
   passageText.innerHTML = html;
 

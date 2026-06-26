@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>타이핑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Diphylleia&family=Do+Hyeon&family=Dongle&family=Gasoek+One&family=Gowun+Dodum&family=Hahmlet:wght@900&family=Nanum+Gothic+Coding&family=Nanum+Myeongjo&family=Noto+Sans+KR:wght@900&family=Sunflower:wght@300&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -282,9 +285,25 @@ function resetState() {
   completeMsg.classList.remove('show');
 }
 
+const FONTS = [
+  'Black Han Sans',
+  'Diphylleia',
+  'Do Hyeon',
+  'Dongle',
+  'Gasoek One',
+  'Gowun Dodum',
+  'Hahmlet',
+  'Nanum Gothic Coding',
+  'Nanum Myeongjo',
+  'Noto Sans KR',
+  'Sunflower',
+];
+
 function loadNext() {
   current = pick();
   resetState();
+  const font = FONTS[Math.floor(Math.random() * FONTS.length)];
+  passageText.style.fontFamily = `'${font}', sans-serif`;
   bookTitle.textContent = current.book.title;
   bookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
   render();

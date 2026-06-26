@@ -6,7 +6,7 @@
 <title>타이핑</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Diphylleia&family=Do+Hyeon&family=Dongle&family=Gasoek+One&family=Gowun+Dodum&family=Hahmlet:wght@900&family=Nanum+Gothic+Coding&family=Nanum+Myeongjo&family=Noto+Sans+KR:wght@900&family=Sunflower:wght@300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@300..800&family=Chiron+GoRound+TC:wght@200..900&family=Chiron+Hei+HK:ital,wght@0,200..900;1,200..900&family=Diphylleia&family=Do+Hyeon&family=Dongle&family=Gowun+Dodum&family=Hahmlet:wght@100..900&family=Nanum+Gothic+Coding&family=Nanum+Myeongjo&family=Noto+Sans+KR:wght@100..900&family=Song+Myung&family=Stylish&family=Sunflower:wght@300&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -56,13 +56,13 @@
     display: inline-block;
     vertical-align: baseline;
     position: relative;
-    color: #aaa;
+    color: #ddd;
   }
 
   .char.correct { color: #1a1a1a; }
 
-  /* Wrong: target char stays gray (never disappears), typed wrong char overlaid in red */
-  .char.wrong { color: #aaa; }
+  /* Wrong: target char stays light gray, typed wrong char overlaid in red */
+  .char.wrong { color: #ddd; }
   .char.wrong::before {
     content: attr(data-typed);
     position: absolute;
@@ -73,8 +73,8 @@
     pointer-events: none;
   }
 
-  /* Composing: target char stays gray, in-progress char overlaid in black */
-  .char.composing { color: #aaa; }
+  /* Composing: target char stays light gray, in-progress char overlaid in black */
+  .char.composing { color: #ddd; }
   .char.composing::before {
     content: attr(data-composing);
     position: absolute;
@@ -85,21 +85,33 @@
     pointer-events: none;
   }
 
-  /* Cursor as inline border — no absolute positioning, no layout shift */
-  .char.cursor-after {
-    border-right: 2px solid #1a1a1a;
-    margin-right: -2px;
+  /* Cursor: absolutely positioned, height matches character (not full line-height) */
+  .char.cursor-after::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 0.9em;
+    background: #1a1a1a;
     animation: blink 0.8s step-end infinite;
   }
-  .char.cursor-before {
-    border-left: 2px solid #1a1a1a;
-    margin-left: -2px;
+  .char.cursor-before::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 0.9em;
+    background: #1a1a1a;
     animation: blink 0.8s step-end infinite;
   }
 
   @keyframes blink {
-    0%, 100% { border-color: #1a1a1a; }
-    50% { border-color: transparent; }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
 
   .input-area {
@@ -286,16 +298,19 @@ function resetState() {
 }
 
 const FONTS = [
-  'Black Han Sans',
+  'Asta Sans',
+  'Chiron GoRound TC',
+  'Chiron Hei HK',
   'Diphylleia',
   'Do Hyeon',
   'Dongle',
-  'Gasoek One',
   'Gowun Dodum',
   'Hahmlet',
   'Nanum Gothic Coding',
   'Nanum Myeongjo',
   'Noto Sans KR',
+  'Song Myung',
+  'Stylish',
   'Sunflower',
 ];
 

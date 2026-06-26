@@ -39,57 +39,53 @@
   }
 
   .char {
+    display: inline-block;
+    vertical-align: baseline;
     position: relative;
     color: #aaa;
   }
 
   .char.correct { color: #1a1a1a; }
-  .char.pending { color: #aaa; }
 
-  /* Wrong: target char stays gray (layout fixed), typed wrong char overlaid in red */
-  .char.wrong { color: #aaa; }
+  /* Wrong: hide target char, show typed char in red via ::before */
+  .char.wrong { color: transparent; }
   .char.wrong::before {
     content: attr(data-typed);
     position: absolute;
-    left: 0; top: 0;
+    top: 0; left: 0;
+    width: 100%;
+    line-height: inherit;
     color: #e07070;
     pointer-events: none;
   }
 
-  /* Composing: target char stays gray, in-progress char overlaid in black */
-  .char.composing { color: #aaa; }
+  /* Composing: hide target char, show in-progress char in black via ::before */
+  .char.composing { color: transparent; }
   .char.composing::before {
     content: attr(data-composing);
     position: absolute;
-    left: 0; top: 0;
+    top: 0; left: 0;
+    width: 100%;
+    line-height: inherit;
     color: #1a1a1a;
     pointer-events: none;
   }
 
-  .char.cursor-after::after {
-    content: '';
-    position: absolute;
-    right: -2px;
-    top: 0.15em;
-    bottom: 0.1em;
-    width: 2px;
-    background: #1a1a1a;
+  /* Cursor as inline border — no absolute positioning, no layout shift */
+  .char.cursor-after {
+    border-right: 2px solid #1a1a1a;
+    margin-right: -2px;
     animation: blink 0.8s step-end infinite;
   }
-  .char.cursor-before::before {
-    content: '';
-    position: absolute;
-    left: -1px;
-    top: 0.15em;
-    bottom: 0.1em;
-    width: 2px;
-    background: #1a1a1a;
+  .char.cursor-before {
+    border-left: 2px solid #1a1a1a;
+    margin-left: -2px;
     animation: blink 0.8s step-end infinite;
   }
 
   @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+    0%, 100% { border-color: #1a1a1a; }
+    50% { border-color: transparent; }
   }
 
   .input-area {

@@ -140,7 +140,6 @@
   .stats span { font-variant-numeric: tabular-nums; }
 
   #fontInfo {
-    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -156,10 +155,13 @@
 
   #fontInfo a:hover { color: #555; }
 
-  .book-info {
+  .bottom-bar {
     border-top: 1px solid #ddd;
     padding-top: 20px;
     margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
   }
 
   .book-title {
@@ -174,9 +176,9 @@
   }
 
   .controls {
-    margin-top: 20px;
     display: flex;
     gap: 12px;
+    flex-shrink: 0;
   }
 
   button {
@@ -216,16 +218,17 @@
     <textarea class="input-area" id="inputArea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
   </div>
 
-  <div class="complete-msg" id="completeMsg">완료! 다음 문장으로 넘어가려면 Tab을 누르세요.</div>
+  <div class="complete-msg" id="completeMsg">완료! 다음 문장으로 넘어가려면 → 를 누르세요.</div>
 
-  <div class="book-info">
-    <div class="book-title" id="bookTitle"></div>
-    <div class="book-meta" id="bookMeta"></div>
-  </div>
-
-  <div class="controls">
-    <button id="nextBtn">다음 문장 (Tab)</button>
-    <button id="retryBtn">다시 시도 (Esc)</button>
+  <div class="bottom-bar">
+    <div class="book-info">
+      <div class="book-title" id="bookTitle"></div>
+      <div class="book-meta" id="bookMeta"></div>
+    </div>
+    <div class="controls">
+      <button id="prevBtn">← 이전</button>
+      <button id="nextBtn">다음 →</button>
+    </div>
   </div>
 </div>
 
@@ -246,6 +249,8 @@ let isComposing = false;
 let composingChar = "";
 let startTime = null;
 let totalTyped = 0;
+const history = [];
+let historyIdx = -1;
 
 const passageText = document.getElementById('passageText');
 const inputArea = document.getElementById('inputArea');
@@ -340,8 +345,7 @@ const FONTS = [
 
 const fontInfoEl = document.getElementById('fontInfo');
 
-function loadNext() {
-  current = pick();
+function applyPassage() {
   resetState();
   const font = FONTS[Math.floor(Math.random() * FONTS.length)];
   passageText.style.fontFamily = `'${font}', sans-serif`;
@@ -351,6 +355,27 @@ function loadNext() {
   bookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
   render();
   inputArea.focus();
+}
+
+function loadNext() {
+  // If we're not at the end of history, go forward in history
+  if (historyIdx < history.length - 1) {
+    historyIdx++;
+    current = history[historyIdx];
+  } else {
+    current = pick();
+    history.push(current);
+    historyIdx = history.length - 1;
+  }
+  applyPassage();
+}
+
+function loadPrev() {
+  if (historyIdx > 0) {
+    historyIdx--;
+    current = history[historyIdx];
+    applyPassage();
+  }
 }
 
 inputArea.addEventListener('compositionstart', () => {
@@ -393,26 +418,31 @@ inputArea.addEventListener('input', (e) => {
 });
 
 inputArea.addEventListener('keydown', (e) => {
-  if (e.key === 'Tab') {
+  if (e.key === 'ArrowRight' || e.key === 'Tab') {
     e.preventDefault();
     loadNext();
-  } else if (e.key === 'Escape') {
+  } else if (e.key === 'ArrowLeft') {
     e.preventDefault();
-    resetState();
-    render();
-    inputArea.focus();
+    loadPrev();
   }
 });
 
 document.getElementById('nextBtn').addEventListener('click', loadNext);
-document.getElementById('retryBtn').addEventListener('click', () => {
-  resetState();
-  render();
-  inputArea.focus();
-});
+document.getElementById('prevBtn').addEventListener('click', loadPrev);
 
 // Click on passage focuses input
 document.getElementById('passageArea').addEventListener('click', () => inputArea.focus());
+
+// Mobile swipe
+(function() {
+  let startX = 0;
+  const area = document.querySelector('.container');
+  area.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, {passive: true});
+  area.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 60) { dx < 0 ? loadNext() : loadPrev(); }
+  }, {passive: true});
+})();
 
 loadNext();
 </script>

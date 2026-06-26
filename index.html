@@ -45,6 +45,7 @@
   .char.correct { color: #1a1a1a; }
   .char.wrong { color: #666; }
   .char.pending { color: #aaa; }
+  .char.composing { color: #1a1a1a; }
   .char.cursor-after::after {
     content: '';
     position: absolute;
@@ -180,7 +181,8 @@ BOOKS.forEach(book => {
 
 let current = null;
 let typed = "";
-let errors = 0;
+let isComposing = false;
+let composingChar = "";
 let startTime = null;
 let totalTyped = 0;
 
@@ -199,18 +201,24 @@ function pick() {
 
 function render() {
   const target = current.text;
-  const cursorAfterIdx = typed.length - 1;
-  const cursorBeforeIdx = typed.length === 0 ? 0 : -1;
   let html = '';
   for (let i = 0; i < target.length; i++) {
     let cls = 'pending';
+    let displayCh = target[i];
+
     if (i < typed.length) {
       cls = typed[i] === target[i] ? 'correct' : 'wrong';
+    } else if (isComposing && i === typed.length) {
+      cls = 'composing cursor-after';
+      displayCh = composingChar;
+    } else if (!isComposing && i === typed.length - 1 && typed.length > 0) {
+      cls = (typed[i] === target[i] ? 'correct' : 'wrong') + ' cursor-after';
+    } else if (!isComposing && typed.length === 0 && i === 0) {
+      cls = 'pending cursor-before';
     }
-    if (i === cursorAfterIdx) cls += ' cursor-after';
-    else if (i === cursorBeforeIdx) cls += ' cursor-before';
-    const ch = target[i] === '\n' ? '↵\n' : target[i];
-    html += `<span class="char ${cls}">${ch.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
+
+    if (displayCh === '\n') displayCh = '↵\n';
+    html += `<span class="char ${cls}">${displayCh.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
   }
   passageText.innerHTML = html;
 
@@ -230,37 +238,60 @@ function render() {
   }
 }
 
-function loadNext() {
-  current = pick();
+function resetState() {
   typed = "";
-  errors = 0;
+  isComposing = false;
+  composingChar = "";
   startTime = null;
   totalTyped = 0;
   inputArea.value = "";
   completeMsg.classList.remove('show');
+}
+
+function loadNext() {
+  current = pick();
+  resetState();
   bookTitle.textContent = current.book.title;
   bookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
   render();
   inputArea.focus();
 }
 
+inputArea.addEventListener('compositionstart', () => {
+  isComposing = true;
+});
+
+inputArea.addEventListener('compositionupdate', (e) => {
+  composingChar = e.data || '';
+  render();
+});
+
+inputArea.addEventListener('compositionend', () => {
+  isComposing = false;
+  composingChar = '';
+  // input event fires after this and will update typed
+});
+
 inputArea.addEventListener('input', (e) => {
-  const val = inputArea.value;
+  const raw = inputArea.value;
   const target = current.text;
 
-  if (!startTime && val.length > 0) startTime = Date.now();
+  if (!startTime && raw.length > 0) startTime = Date.now();
 
-  // Count newly typed chars for WPM
-  if (val.length > typed.length) {
-    totalTyped += val.length - typed.length;
+  // During composition the last char is the in-progress syllable — exclude it
+  const completed = isComposing ? raw.slice(0, raw.length - 1) : raw;
+
+  if (completed.length > typed.length) {
+    totalTyped += completed.length - typed.length;
   }
 
-  // Prevent typing past end
-  if (val.length > target.length) {
-    inputArea.value = val.slice(0, target.length);
-    typed = inputArea.value;
+  // Prevent going past end
+  if (completed.length >= target.length) {
+    typed = completed.slice(0, target.length);
+    if (isComposing) inputArea.value = typed + composingChar;
+    else inputArea.value = typed;
   } else {
-    typed = val;
+    typed = completed;
   }
 
   render();
@@ -272,11 +303,7 @@ inputArea.addEventListener('keydown', (e) => {
     loadNext();
   } else if (e.key === 'Escape') {
     e.preventDefault();
-    typed = "";
-    startTime = null;
-    totalTyped = 0;
-    inputArea.value = "";
-    completeMsg.classList.remove('show');
+    resetState();
     render();
     inputArea.focus();
   }
@@ -284,11 +311,7 @@ inputArea.addEventListener('keydown', (e) => {
 
 document.getElementById('nextBtn').addEventListener('click', loadNext);
 document.getElementById('retryBtn').addEventListener('click', () => {
-  typed = "";
-  startTime = null;
-  totalTyped = 0;
-  inputArea.value = "";
-  completeMsg.classList.remove('show');
+  resetState();
   render();
   inputArea.focus();
 });

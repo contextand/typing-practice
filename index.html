@@ -93,7 +93,7 @@
     top: 50%;
     transform: translateY(-50%);
     width: 2px;
-    height: 0.9em;
+    height: 1.1em;
     background: #1a1a1a;
     animation: blink 0.8s step-end infinite;
   }
@@ -104,7 +104,7 @@
     top: 50%;
     transform: translateY(-50%);
     width: 2px;
-    height: 0.9em;
+    height: 1.1em;
     background: #1a1a1a;
     animation: blink 0.8s step-end infinite;
   }
@@ -134,9 +134,27 @@
     margin-bottom: 24px;
     font-size: 13px;
     color: #888;
+    align-items: center;
   }
 
   .stats span { font-variant-numeric: tabular-nums; }
+
+  #fontInfo {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  #fontInfo a {
+    color: #bbb;
+    text-decoration: none;
+    font-size: 11px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+
+  #fontInfo a:hover { color: #555; }
 
   .book-info {
     border-top: 1px solid #ddd;
@@ -190,6 +208,7 @@
     <span id="progress">0 / 0</span>
     <span id="accuracy">정확도 100%</span>
     <span id="wpm">0 타/분</span>
+    <span id="fontInfo"></span>
   </div>
 
   <div class="passage-area" id="passageArea">
@@ -254,17 +273,22 @@ function render() {
     let cls = 'pending';
     let extra = '';
 
+    // When last typed char is a space, show cursor-before on the next char
+    // so the cursor visually jumps past the invisible space to the next word
+    const lastIsSpace = !isComposing && typed.length > 0 && typed[typed.length - 1] === ' ';
+
     if (i < typed.length) {
       const isCorrect = typed[i] === target[i];
       cls = isCorrect ? 'correct' : 'wrong';
       if (!isCorrect) extra = ` data-typed="${escAttr(typed[i])}"`;
-      // Cursor after the last typed char
-      if (i === typed.length - 1 && !isComposing) cls += ' cursor-after';
+      // Cursor after last typed char, unless that char is a space
+      if (i === typed.length - 1 && !isComposing && !lastIsSpace) cls += ' cursor-after';
     } else if (isComposing && i === typed.length) {
       cls = 'composing cursor-after';
       extra = ` data-composing="${escAttr(composingChar)}"`;
-    } else if (!isComposing && typed.length === 0 && i === 0) {
-      cls = 'pending cursor-before';
+    } else if (i === typed.length) {
+      // Cursor before next char: nothing typed yet, or last typed was a space
+      if (typed.length === 0 || lastIsSpace) cls += ' cursor-before';
     }
 
     html += `<span class="char ${cls}"${extra}>${targetCh.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
@@ -314,11 +338,15 @@ const FONTS = [
   'Sunflower',
 ];
 
+const fontInfoEl = document.getElementById('fontInfo');
+
 function loadNext() {
   current = pick();
   resetState();
   const font = FONTS[Math.floor(Math.random() * FONTS.length)];
   passageText.style.fontFamily = `'${font}', sans-serif`;
+  const url = 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
+  fontInfoEl.innerHTML = `${font}&nbsp;<a href="${url}" target="_blank" rel="noopener" title="Google Fonts에서 보기">↗</a>`;
   bookTitle.textContent = current.book.title;
   bookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
   render();

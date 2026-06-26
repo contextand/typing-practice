@@ -30,7 +30,7 @@
   }
 
   .passage-text {
-    font-size: 18px;
+    font-size: 30px;
     line-height: 2;
     letter-spacing: 0.02em;
     white-space: pre-wrap;
@@ -47,8 +47,8 @@
 
   .char.correct { color: #1a1a1a; }
 
-  /* Wrong: hide target char, show typed char in red via ::before */
-  .char.wrong { color: transparent; }
+  /* Wrong: target char stays gray (never disappears), typed wrong char overlaid in red */
+  .char.wrong { color: #aaa; }
   .char.wrong::before {
     content: attr(data-typed);
     position: absolute;
@@ -59,8 +59,8 @@
     pointer-events: none;
   }
 
-  /* Composing: hide target char, show in-progress char in black via ::before */
-  .char.composing { color: transparent; }
+  /* Composing: target char stays gray, in-progress char overlaid in black */
+  .char.composing { color: #aaa; }
   .char.composing::before {
     content: attr(data-composing);
     position: absolute;

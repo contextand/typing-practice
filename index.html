@@ -40,12 +40,32 @@
 
   .char {
     position: relative;
+    color: #aaa;
   }
 
   .char.correct { color: #1a1a1a; }
-  .char.wrong { color: #666; }
   .char.pending { color: #aaa; }
-  .char.composing { color: #1a1a1a; }
+
+  /* Wrong: target char stays gray (layout fixed), typed wrong char overlaid in red */
+  .char.wrong { color: #aaa; }
+  .char.wrong::before {
+    content: attr(data-typed);
+    position: absolute;
+    left: 0; top: 0;
+    color: #e07070;
+    pointer-events: none;
+  }
+
+  /* Composing: target char stays gray, in-progress char overlaid in black */
+  .char.composing { color: #aaa; }
+  .char.composing::before {
+    content: attr(data-composing);
+    position: absolute;
+    left: 0; top: 0;
+    color: #1a1a1a;
+    pointer-events: none;
+  }
+
   .char.cursor-after::after {
     content: '';
     position: absolute;
@@ -199,26 +219,33 @@ function pick() {
   return ALL[Math.floor(Math.random() * ALL.length)];
 }
 
+function escAttr(s) {
+  return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
 function render() {
   const target = current.text;
   let html = '';
   for (let i = 0; i < target.length; i++) {
+    // Target char is always the span content — layout never shifts
+    const targetCh = target[i] === '\n' ? '↵\n' : target[i];
     let cls = 'pending';
-    let displayCh = target[i];
+    let extra = '';
 
     if (i < typed.length) {
-      cls = typed[i] === target[i] ? 'correct' : 'wrong';
+      const isCorrect = typed[i] === target[i];
+      cls = isCorrect ? 'correct' : 'wrong';
+      if (!isCorrect) extra = ` data-typed="${escAttr(typed[i] === '\n' ? '↵' : typed[i])}"`;
+      // Cursor after the last typed char
+      if (i === typed.length - 1 && !isComposing) cls += ' cursor-after';
     } else if (isComposing && i === typed.length) {
       cls = 'composing cursor-after';
-      displayCh = composingChar;
-    } else if (!isComposing && i === typed.length - 1 && typed.length > 0) {
-      cls = (typed[i] === target[i] ? 'correct' : 'wrong') + ' cursor-after';
+      extra = ` data-composing="${escAttr(composingChar === '\n' ? '↵' : composingChar)}"`;
     } else if (!isComposing && typed.length === 0 && i === 0) {
       cls = 'pending cursor-before';
     }
 
-    if (displayCh === '\n') displayCh = '↵\n';
-    html += `<span class="char ${cls}">${displayCh.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
+    html += `<span class="char ${cls}"${extra}>${targetCh.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
   }
   passageText.innerHTML = html;
 
@@ -269,7 +296,7 @@ inputArea.addEventListener('compositionupdate', (e) => {
 inputArea.addEventListener('compositionend', () => {
   isComposing = false;
   composingChar = '';
-  // input event fires after this and will update typed
+  render(); // clear composing overlay immediately before input fires
 });
 
 inputArea.addEventListener('input', (e) => {
@@ -285,11 +312,10 @@ inputArea.addEventListener('input', (e) => {
     totalTyped += completed.length - typed.length;
   }
 
-  // Prevent going past end
-  if (completed.length >= target.length) {
+  // Prevent going past end (only trim when not composing to avoid IME conflicts)
+  if (!isComposing && completed.length > target.length) {
     typed = completed.slice(0, target.length);
-    if (isComposing) inputArea.value = typed + composingChar;
-    else inputArea.value = typed;
+    inputArea.value = typed;
   } else {
     typed = completed;
   }

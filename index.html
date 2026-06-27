@@ -396,7 +396,10 @@ inputArea.addEventListener('compositionstart', () => {
 });
 
 inputArea.addEventListener('compositionupdate', (e) => {
-  composingChar = e.data || '';
+  const data = e.data || '';
+  // On mobile, e.data is the full composition string (e.g. "우리가"), not just current syllable.
+  // Only overlay the last character to avoid visual duplication.
+  composingChar = data[data.length - 1] || '';
   render();
 });
 

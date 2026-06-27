@@ -155,6 +155,10 @@
 
   #fontInfo a:hover { color: #555; }
 
+  @media (max-width: 768px) {
+    #fontInfo { display: none; }
+  }
+
   .bottom-bar {
     border-top: 1px solid #ddd;
     padding-top: 20px;
@@ -183,16 +187,31 @@
 
   button {
     background: none;
-    border: 1px solid #bbb;
-    border-radius: 4px;
-    padding: 6px 14px;
-    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    padding: 0;
     cursor: pointer;
-    color: #555;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: border-color 0.15s, color 0.15s;
+    flex-shrink: 0;
   }
 
   button:hover { border-color: #555; color: #1a1a1a; }
+
+  @media (max-width: 768px) {
+    button {
+      border: none;
+      width: 28px;
+      height: 28px;
+      color: #aaa;
+    }
+    button:hover { color: #555; }
+  }
 
   .complete-msg {
     display: none;
@@ -208,8 +227,6 @@
 <div class="container">
   <div class="stats">
     <span id="progress">0 / 0</span>
-    <span id="accuracy">정확도 100%</span>
-    <span id="wpm">0 타/분</span>
     <span id="fontInfo"></span>
   </div>
 
@@ -226,8 +243,16 @@
       <div class="book-meta" id="bookMeta"></div>
     </div>
     <div class="controls">
-      <button id="prevBtn">← 이전</button>
-      <button id="nextBtn">다음 →</button>
+      <button id="prevBtn" aria-label="이전 문장">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button id="nextBtn" aria-label="다음 문장">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 2L10 7L5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
   </div>
 </div>
@@ -247,8 +272,6 @@ let current = null;
 let typed = "";
 let isComposing = false;
 let composingChar = "";
-let startTime = null;
-let totalTyped = 0;
 const history = [];
 let historyIdx = -1;
 
@@ -257,8 +280,6 @@ const inputArea = document.getElementById('inputArea');
 const bookTitle = document.getElementById('bookTitle');
 const bookMeta = document.getElementById('bookMeta');
 const progressEl = document.getElementById('progress');
-const accuracyEl = document.getElementById('accuracy');
-const wpmEl = document.getElementById('wpm');
 const completeMsg = document.getElementById('completeMsg');
 
 function pick() {
@@ -300,19 +321,11 @@ function render() {
   }
   passageText.innerHTML = html;
 
-  const done = typed.length >= target.length;
-  completeMsg.classList.toggle('show', done);
-
   progressEl.textContent = `${Math.min(typed.length, target.length)} / ${target.length}`;
 
-  const correct = [...typed].filter((c, i) => c === target[i]).length;
-  const acc = typed.length ? Math.round(correct / typed.length * 100) : 100;
-  accuracyEl.textContent = `정확도 ${acc}%`;
-
-  if (startTime) {
-    const mins = (Date.now() - startTime) / 60000;
-    const cpm = Math.round(totalTyped / mins);
-    wpmEl.textContent = `${cpm} 타/분`;
+  // Auto-advance when passage is fully and correctly typed
+  if (!isComposing && typed.length >= target.length && typed === target) {
+    setTimeout(loadNext, 500);
   }
 }
 
@@ -320,10 +333,7 @@ function resetState() {
   typed = "";
   isComposing = false;
   composingChar = "";
-  startTime = null;
-  totalTyped = 0;
   inputArea.value = "";
-  completeMsg.classList.remove('show');
 }
 
 const FONTS = [
@@ -347,10 +357,13 @@ const fontInfoEl = document.getElementById('fontInfo');
 
 function applyPassage() {
   resetState();
-  const font = FONTS[Math.floor(Math.random() * FONTS.length)];
+  const isMobile = window.innerWidth <= 768;
+  const font = isMobile ? 'Asta Sans' : FONTS[Math.floor(Math.random() * FONTS.length)];
   passageText.style.fontFamily = `'${font}', sans-serif`;
-  const url = 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
-  fontInfoEl.innerHTML = `${font}&nbsp;<a href="${url}" target="_blank" rel="noopener" title="Google Fonts에서 보기">↗</a>`;
+  if (!isMobile) {
+    const url = 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
+    fontInfoEl.innerHTML = `${font}&nbsp;<a href="${url}" target="_blank" rel="noopener" title="Google Fonts에서 보기">↗</a>`;
+  }
   bookTitle.textContent = current.book.title;
   bookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
   render();
@@ -397,16 +410,10 @@ inputArea.addEventListener('input', (e) => {
   const raw = inputArea.value;
   const target = current.text;
 
-  if (!startTime && raw.length > 0) startTime = Date.now();
-
   // During composition the last char is the in-progress syllable — exclude it
   const completed = isComposing ? raw.slice(0, raw.length - 1) : raw;
 
-  if (completed.length > typed.length) {
-    totalTyped += completed.length - typed.length;
-  }
-
-  // Prevent going past end (only trim when not composing to avoid IME conflicts)
+  // Only clamp when not composing — touching inputArea.value during IME breaks mobile
   if (!isComposing && completed.length > target.length) {
     typed = completed.slice(0, target.length);
     inputArea.value = typed;
@@ -418,7 +425,7 @@ inputArea.addEventListener('input', (e) => {
 });
 
 inputArea.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowRight' || e.key === 'Tab') {
+  if (e.key === 'ArrowRight' || e.key === 'Tab' || e.key === 'Enter') {
     e.preventDefault();
     loadNext();
   } else if (e.key === 'ArrowLeft') {

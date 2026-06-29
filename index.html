@@ -376,7 +376,7 @@ function applyPassage() {
   bookTitle.textContent = current.book.title;
   bookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
   render();
-  inputArea.focus();
+  if (window.innerWidth > 768) inputArea.focus();
 }
 
 function loadNext() {
@@ -449,8 +449,21 @@ inputArea.addEventListener('keydown', (e) => {
 document.getElementById('nextBtn').addEventListener('click', loadNext);
 document.getElementById('prevBtn').addEventListener('click', loadPrev);
 
-// Click on passage focuses input
-document.getElementById('passageArea').addEventListener('click', () => inputArea.focus());
+// PC: single click focuses input / Mobile: double-tap focuses input (shows keyboard)
+const passageArea = document.getElementById('passageArea');
+if (window.innerWidth > 768) {
+  passageArea.addEventListener('click', () => inputArea.focus());
+} else {
+  let lastTap = 0;
+  passageArea.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      e.preventDefault();
+      inputArea.focus();
+    }
+    lastTap = now;
+  });
+}
 
 
 loadNext();

@@ -8,6 +8,52 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@300..800&family=Chiron+GoRound+TC:wght@200..900&family=Chiron+Hei+HK:ital,wght@0,200..900;1,200..900&family=Diphylleia&family=Do+Hyeon&family=Dongle&family=Gowun+Dodum&family=Hahmlet:wght@100..900&family=Nanum+Gothic+Coding&family=Nanum+Myeongjo&family=Noto+Sans+KR:wght@100..900&family=Song+Myung&family=Stylish&family=Sunflower:wght@300&display=swap" rel="stylesheet">
 <style>
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-1Thin.woff2') format('woff2');
+    font-weight: 100; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-2ExtraLight.woff2') format('woff2');
+    font-weight: 200; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-3Light.woff2') format('woff2');
+    font-weight: 300; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-4Regular.woff2') format('woff2');
+    font-weight: 400; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-5Medium.woff2') format('woff2');
+    font-weight: 500; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-6SemiBold.woff2') format('woff2');
+    font-weight: 600; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-7Bold.woff2') format('woff2');
+    font-weight: 700; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-8ExtraBold.woff2') format('woff2');
+    font-weight: 800; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Paperlogy';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-9Black.woff2') format('woff2');
+    font-weight: 900; font-display: swap;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -348,10 +394,16 @@ const FONTS = [
   'Nanum Gothic Coding',
   'Nanum Myeongjo',
   'Noto Sans KR',
+  'Paperlogy',
   'Song Myung',
   'Stylish',
   'Sunflower',
 ];
+
+// Fonts not on Google Fonts use a custom link
+const FONT_LINKS = {
+  'Paperlogy': 'https://noonnu.cc/font_page/1432',
+};
 
 const fontInfoEl = document.getElementById('fontInfo');
 
@@ -361,8 +413,8 @@ function applyPassage() {
   const font = isMobile ? 'Asta Sans' : FONTS[Math.floor(Math.random() * FONTS.length)];
   passageText.style.fontFamily = `'${font}', sans-serif`;
   if (!isMobile) {
-    const url = 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
-    fontInfoEl.innerHTML = `${font}&nbsp;<a href="${url}" target="_blank" rel="noopener" title="Google Fonts에서 보기">↗</a>`;
+    const url = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
+    fontInfoEl.innerHTML = `${font}&nbsp;<a href="${url}" target="_blank" rel="noopener" title="폰트 보기">↗</a>`;
   }
   bookTitle.textContent = current.book.title;
   bookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');

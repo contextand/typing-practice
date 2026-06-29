@@ -443,16 +443,6 @@ document.getElementById('prevBtn').addEventListener('click', loadPrev);
 // Click on passage focuses input
 document.getElementById('passageArea').addEventListener('click', () => inputArea.focus());
 
-// Mobile swipe
-(function() {
-  let startX = 0;
-  const area = document.querySelector('.container');
-  area.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, {passive: true});
-  area.addEventListener('touchend', (e) => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 60) { dx < 0 ? loadNext() : loadPrev(); }
-  }, {passive: true});
-})();
 
 loadNext();
 </script>

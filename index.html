@@ -8,6 +8,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@300..800&family=Chiron+GoRound+TC:wght@200..900&family=Chiron+Hei+HK:ital,wght@0,200..900;1,200..900&family=Diphylleia&family=Gowun+Dodum&family=Hahmlet:wght@100..900&family=Nanum+Gothic+Coding&family=Nanum+Myeongjo&family=Noto+Sans+KR:wght@100..900&family=Song+Myung&family=Stylish&family=Sunflower:wght@300&display=swap" rel="stylesheet">
 <style>
+  @font-face {
+    font-family: 'JoseonPalace';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ChosunGs.woff') format('woff');
+    font-weight: normal; font-display: swap;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -343,6 +349,7 @@ const FONTS = [
   'Diphylleia',
   'Gowun Dodum',
   'Hahmlet',
+  'JoseonPalace',
   'Nanum Gothic Coding',
   'Nanum Myeongjo',
   'Noto Sans KR',
@@ -350,6 +357,10 @@ const FONTS = [
   'Stylish',
   'Sunflower',
 ];
+
+const FONT_LINKS = {
+  'JoseonPalace': 'https://event.chosun.com/100/100font.html',
+};
 
 const fontInfoEl = document.getElementById('fontInfo');
 
@@ -359,7 +370,7 @@ function applyPassage() {
   const font = isMobile ? 'Asta Sans' : FONTS[Math.floor(Math.random() * FONTS.length)];
   passageText.style.fontFamily = `'${font}', sans-serif`;
   if (!isMobile) {
-    const url = 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
+    const url = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
     fontInfoEl.innerHTML = `${font}&nbsp;<a href="${url}" target="_blank" rel="noopener" title="폰트 보기">↗</a>`;
   }
   bookTitle.textContent = current.book.title;

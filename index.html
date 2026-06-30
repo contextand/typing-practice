@@ -90,7 +90,7 @@
     max-width: 700px;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1000px) {
     .mobile-container { max-width: 100%; }
     .passage-text { font-size: 18px; line-height: 1.9; }
   }
@@ -166,7 +166,7 @@
   /* ── PC LAYOUT ──────────────────────────────────── */
   .pc-layout { display: none; }
 
-  @media (min-width: 769px) {
+  @media (min-width: 1001px) {
     body { overflow: hidden; height: 100vh; }
 
     .mobile-layout { display: none; }
@@ -195,7 +195,7 @@
     }
 
     .pc-book {
-      margin-top: 86px;
+      margin-top: 50px;
     }
 
     .pc-book-title {
@@ -211,7 +211,7 @@
     }
 
     .pc-font-info {
-      margin-top: 120px;
+      margin-top: 50px;
       font-size: 13px;
       color: #888;
       display: flex;
@@ -275,21 +275,12 @@
       z-index: 10;
     }
 
-    /* Passage track: two slots stacked, animated */
     .pc-passages-track {
-      display: flex;
-      flex-direction: column;
       padding-top: 70px;
       padding-right: 120px;
     }
 
-    .pc-preview-slot {
-      margin-top: 80px;
-    }
-
-    .pc-preview-slot .passage-text {
-      color: #eee;
-    }
+    .pc-preview-slot { display: none; }
   }
 
 </style>
@@ -374,26 +365,20 @@ BOOKS.forEach(book => {
 });
 
 let current = null;
-let nextPassage = null;
 let typed = "";
 let isComposing = false;
 let composingChar = "";
 const history = [];
 let historyIdx = -1;
-let isAnimating = false;
 
-const isPc = () => window.innerWidth > 768;
+const isPc = () => window.innerWidth > 1000;
 
 // PC elements
 const passageText  = document.getElementById('passageText');
-const previewText  = document.getElementById('previewText');
 const pcProgress   = document.getElementById('pcProgress');
 const pcBookTitle  = document.getElementById('pcBookTitle');
 const pcBookMeta   = document.getElementById('pcBookMeta');
 const pcFontInfo   = document.getElementById('pcFontInfo');
-const pcTrack      = document.getElementById('pcPassagesTrack');
-const pcCurrentSlot = document.getElementById('pcCurrentSlot');
-const pcPreviewSlot = document.getElementById('pcPreviewSlot');
 const inputArea    = document.getElementById('inputArea');
 
 // Mobile elements
@@ -405,11 +390,6 @@ const mInputArea   = document.getElementById('mInputArea');
 
 function pick() {
   return ALL[Math.floor(Math.random() * ALL.length)];
-}
-
-function pickNext() {
-  if (historyIdx < history.length - 1) return history[historyIdx + 1];
-  return pick();
 }
 
 function escAttr(s) {
@@ -481,11 +461,6 @@ function applyPassage() {
     pcBookTitle.textContent = current.book.title;
     pcBookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
 
-    // Pre-load & show next passage preview
-    nextPassage = pickNext();
-    previewText.textContent = nextPassage ? nextPassage.text : '';
-    previewText.style.fontFamily = passageText.style.fontFamily;
-
     render();
     inputArea.focus();
   } else {
@@ -496,54 +471,22 @@ function applyPassage() {
   }
 }
 
-function doSlideNext(newCurrent) {
-  if (isAnimating) return;
-  isAnimating = true;
-
-  // Slide up by the height of current slot + gap to preview slot
-  const slideAmount = pcPreviewSlot.offsetTop;
-  pcTrack.style.transition = 'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)';
-  pcTrack.style.transform = `translateY(-${slideAmount}px)`;
-
-  pcTrack.addEventListener('transitionend', function onEnd() {
-    pcTrack.removeEventListener('transitionend', onEnd);
-    // Instant reset — no animation
-    pcTrack.style.transition = 'none';
-    pcTrack.style.transform = 'translateY(0)';
-
-    current = newCurrent;
-    applyPassage();
-    isAnimating = false;
-
-    // Re-enable transition after paint
-    requestAnimationFrame(() => { pcTrack.style.transition = ''; });
-  }, { once: true });
-}
-
 function loadNext() {
-  let newCurrent;
   if (historyIdx < history.length - 1) {
     historyIdx++;
-    newCurrent = history[historyIdx];
+    current = history[historyIdx];
   } else {
-    newCurrent = nextPassage || pick();
-    history.push(newCurrent);
+    current = pick();
+    history.push(current);
     historyIdx = history.length - 1;
   }
-
-  if (isPc()) {
-    doSlideNext(newCurrent);
-  } else {
-    current = newCurrent;
-    applyPassage();
-  }
+  applyPassage();
 }
 
 function loadPrev() {
   if (historyIdx > 0) {
     historyIdx--;
     current = history[historyIdx];
-    nextPassage = history[historyIdx + 1] || pick();
     applyPassage();
   }
 }
@@ -573,18 +516,10 @@ function addInputListeners(el) {
     render();
   });
   el.addEventListener('keydown', (e) => {
-    if (isPc()) {
-      if (e.key === 'ArrowDown' || e.key === 'Tab' || e.key === 'Enter') {
-        e.preventDefault(); loadNext();
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault(); loadPrev();
-      }
-    } else {
-      if (e.key === 'ArrowRight' || e.key === 'Tab' || e.key === 'Enter') {
-        e.preventDefault(); loadNext();
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault(); loadPrev();
-      }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'Tab' || e.key === 'Enter') {
+      e.preventDefault(); loadNext();
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault(); loadPrev();
     }
   });
 }

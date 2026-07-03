@@ -490,17 +490,13 @@ function pageSlide(dir, callback) {
   const inClass  = dir === 'next' ? 'slide-in-up'    : 'slide-in-down';
 
   pcTrack.classList.add(outClass);
-  pcSidebarContent.classList.add(outClass);
 
   pcTrack.addEventListener('animationend', function onOut() {
     pcTrack.classList.remove(outClass);
-    pcSidebarContent.classList.remove(outClass);
     callback();
     pcTrack.classList.add(inClass);
-    pcSidebarContent.classList.add(inClass);
     pcTrack.addEventListener('animationend', function onIn() {
       pcTrack.classList.remove(inClass);
-      pcSidebarContent.classList.remove(inClass);
       isAnimating = false;
     }, { once: true });
   }, { once: true });

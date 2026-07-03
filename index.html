@@ -178,9 +178,9 @@
       position: relative;
     }
 
-    /* Outer border 2px inset */
+    /* Outer border 1px inset */
     .pc-layout {
-      box-shadow: inset 0 0 0 2px #1a1a1a;
+      box-shadow: inset 0 0 0 1px #1a1a1a;
     }
 
     .pc-layout::after {
@@ -223,10 +223,15 @@
       line-height: 2;
     }
 
+    .pc-sidebar-content {
+      height: 100%;
+      position: relative;
+    }
+
     .pc-font-info {
       position: absolute;
       bottom: 35px;
-      left: 54px;
+      left: 0;
       font-size: 30px;
       font-weight: 300;
       color: #222;

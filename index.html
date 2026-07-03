@@ -13,6 +13,26 @@
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ChosunGs.woff') format('woff');
     font-weight: normal; font-display: swap;
   }
+  @font-face {
+    font-family: 'SeoulNotice';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/SeoulAlrimTTF-Medium.woff2') format('woff2');
+    font-weight: 500; font-display: swap;
+  }
+  @font-face {
+    font-family: 'SeoulNotice';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/SeoulAlrimTTF-Bold.woff2') format('woff2');
+    font-weight: 700; font-display: swap;
+  }
+  @font-face {
+    font-family: 'SeoulNotice';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/SeoulAlrimTTF-ExtraBold.woff2') format('woff2');
+    font-weight: 800; font-display: swap;
+  }
+  @font-face {
+    font-family: 'SeoulNotice';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/SeoulAlrimTTF-Heavy.woff2') format('woff2');
+    font-weight: 900; font-display: swap;
+  }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -453,9 +473,12 @@ function resetState() {
 const FONTS = [
   'Asta Sans', 'Chiron GoRound TC', 'Chiron Hei HK', 'Diphylleia',
   'Gowun Dodum', 'Hahmlet', 'JoseonPalace', 'Nanum Gothic Coding',
-  'Nanum Myeongjo', 'Noto Sans KR', 'Song Myung', 'Sunflower',
+  'Nanum Myeongjo', 'Noto Sans KR', 'SeoulNotice', 'Song Myung', 'Sunflower',
 ];
-const FONT_LINKS = { 'JoseonPalace': 'https://event.chosun.com/100/100font.html' };
+const FONT_LINKS = {
+  'JoseonPalace': 'https://event.chosun.com/100/100font.html',
+  'SeoulNotice': 'https://www.seoul.go.kr/seoul/font.do',
+};
 
 const pcSidebarContent = document.getElementById('pcSidebarContent');
 

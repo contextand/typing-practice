@@ -178,9 +178,9 @@
       position: relative;
     }
 
-    /* Outer border (inset) + center dividing line */
+    /* Outer border 2px inset */
     .pc-layout {
-      box-shadow: inset 0 0 0 1px #1a1a1a;
+      box-shadow: inset 0 0 0 2px #1a1a1a;
     }
 
     .pc-layout::after {
@@ -219,7 +219,7 @@
     .pc-book-meta {
       font-size: 15px;
       font-weight: 300;
-      color: #888;
+      color: #222;
       line-height: 2;
     }
 
@@ -286,10 +286,14 @@
     @keyframes slideOutDown { from { transform: translateY(0);     opacity: 1; } to { transform: translateY(60px);  opacity: 0; } }
     @keyframes slideInDown  { from { transform: translateY(-60px); opacity: 0; } to { transform: translateY(0);     opacity: 1; } }
 
-    .pc-passages-track.slide-out-up   { animation: slideOutUp   0.18s ease-in  forwards; }
-    .pc-passages-track.slide-in-up    { animation: slideInUp    0.22s ease-out forwards; }
-    .pc-passages-track.slide-out-down { animation: slideOutDown 0.18s ease-in  forwards; }
-    .pc-passages-track.slide-in-down  { animation: slideInDown  0.22s ease-out forwards; }
+    .pc-passages-track.slide-out-up,
+    .pc-sidebar-content.slide-out-up   { animation: slideOutUp   0.18s ease-in  forwards; }
+    .pc-passages-track.slide-in-up,
+    .pc-sidebar-content.slide-in-up    { animation: slideInUp    0.22s ease-out forwards; }
+    .pc-passages-track.slide-out-down,
+    .pc-sidebar-content.slide-out-down { animation: slideOutDown 0.18s ease-in  forwards; }
+    .pc-passages-track.slide-in-down,
+    .pc-sidebar-content.slide-in-down  { animation: slideInDown  0.22s ease-out forwards; }
   }
 
 </style>
@@ -299,11 +303,13 @@
 <!-- ── PC LAYOUT ─────────────────────────────────────── -->
 <div class="pc-layout">
   <aside class="pc-sidebar">
-    <div class="pc-book">
-      <div class="pc-book-title" id="pcBookTitle"></div>
-      <div class="pc-book-meta" id="pcBookMeta"></div>
+    <div class="pc-sidebar-content" id="pcSidebarContent">
+      <div class="pc-book">
+        <div class="pc-book-title" id="pcBookTitle"></div>
+        <div class="pc-book-meta" id="pcBookMeta"></div>
+      </div>
+      <div class="pc-font-info" id="pcFontInfo"></div>
     </div>
-    <div class="pc-font-info" id="pcFontInfo"></div>
   </aside>
 
   <div class="pc-right" id="pcRight">
@@ -445,12 +451,7 @@ const FONTS = [
 ];
 const FONT_LINKS = { 'JoseonPalace': 'https://event.chosun.com/100/100font.html' };
 
-const SIDEBAR_COLORS = [
-  '#f2c4b0', '#f2d4a0', '#f0e090', '#c8e0a0',
-  '#a8d8c0', '#a0cce0', '#b0b8e8', '#caaee0',
-  '#e0a8cc', '#e8a8a8', '#c8d8a0', '#a0d0d0',
-];
-const pcSidebar = document.querySelector('.pc-sidebar');
+const pcSidebarContent = document.getElementById('pcSidebarContent');
 
 function applyPassage() {
   resetState();
@@ -462,8 +463,6 @@ function applyPassage() {
     pcFontInfo.innerHTML = `${font}&nbsp;<a href="${url}" target="_blank" rel="noopener">↗</a>`;
     pcBookTitle.textContent = current.book.title;
     pcBookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
-    pcSidebar.style.backgroundColor = SIDEBAR_COLORS[Math.floor(Math.random() * SIDEBAR_COLORS.length)];
-
     render();
     inputArea.focus();
   } else {
@@ -486,13 +485,17 @@ function pageSlide(dir, callback) {
   const inClass  = dir === 'next' ? 'slide-in-up'    : 'slide-in-down';
 
   pcTrack.classList.add(outClass);
+  pcSidebarContent.classList.add(outClass);
 
   pcTrack.addEventListener('animationend', function onOut() {
     pcTrack.classList.remove(outClass);
+    pcSidebarContent.classList.remove(outClass);
     callback();
     pcTrack.classList.add(inClass);
+    pcSidebarContent.classList.add(inClass);
     pcTrack.addEventListener('animationend', function onIn() {
       pcTrack.classList.remove(inClass);
+      pcSidebarContent.classList.remove(inClass);
       isAnimating = false;
     }, { once: true });
   }, { once: true });

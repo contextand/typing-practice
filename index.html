@@ -175,66 +175,87 @@
       display: flex;
       width: 100vw;
       height: 100vh;
+      position: relative;
     }
 
-    /* Left sidebar */
+    /* Center dividing line */
+    .pc-layout::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      height: 100%;
+      width: 1px;
+      background: #1a1a1a;
+      pointer-events: none;
+    }
+
+    /* Left sidebar — exactly 50% width */
     .pc-sidebar {
-      width: 430px;
+      width: 50%;
       flex-shrink: 0;
       height: 100vh;
-      padding: 85px 0 80px 71px;
+      padding: 35px 0 35px 54px;
       display: flex;
       flex-direction: column;
       position: relative;
     }
 
     .pc-progress {
-      font-size: 15px;
+      font-size: 30px;
+      font-weight: 300;
+      line-height: 2;
       color: #222;
       font-variant-numeric: tabular-nums;
     }
 
     .pc-book {
-      margin-top: 50px;
+      margin-top: 40px;
     }
 
     .pc-book-title {
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 30px;
+      font-weight: 300;
       color: #222;
-      margin-bottom: 4px;
+      line-height: 2;
     }
 
     .pc-book-meta {
-      font-size: 13px;
-      color: #888;
+      font-size: 30px;
+      font-weight: 300;
+      color: #222;
+      line-height: 2;
     }
 
     .pc-font-info {
-      margin-top: 50px;
-      font-size: 13px;
-      color: #888;
+      position: absolute;
+      bottom: 35px;
+      left: 54px;
+      font-size: 30px;
+      font-weight: 300;
+      color: #222;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
 
     .pc-font-info a {
-      color: #bbb;
+      color: #222;
       text-decoration: none;
-      font-size: 11px;
-      transition: color 0.15s;
+      font-size: 30px;
+      font-weight: 300;
+      transition: opacity 0.15s;
     }
 
-    .pc-font-info a:hover { color: #555; }
+    .pc-font-info a:hover { opacity: 0.5; }
 
     .pc-nav {
       position: absolute;
-      bottom: 80px;
-      left: 71px;
+      left: 54px;
+      top: 55vh;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 80px;
     }
 
     .pc-nav button {
@@ -253,7 +274,7 @@
 
     .pc-nav button:hover { color: #1a1a1a; }
 
-    /* Right panel */
+    /* Right panel — fills remaining 50% */
     .pc-right {
       flex: 1;
       height: 100vh;
@@ -276,8 +297,9 @@
     }
 
     .pc-passages-track {
-      padding-top: 70px;
-      padding-right: 120px;
+      padding-top: 35px;
+      padding-left: 54px;
+      padding-right: 60px;
     }
 
     .pc-preview-slot { display: none; }

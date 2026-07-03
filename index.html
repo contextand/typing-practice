@@ -178,14 +178,18 @@
       position: relative;
     }
 
-    /* Center dividing line */
+    /* Outer border (inset) + center dividing line */
+    .pc-layout {
+      box-shadow: inset 0 0 0 2px #1a1a1a;
+    }
+
     .pc-layout::after {
       content: '';
       position: absolute;
       left: 50%;
       top: 0;
       height: 100%;
-      width: 1px;
+      width: 2px;
       background: #1a1a1a;
       pointer-events: none;
     }
@@ -296,33 +300,20 @@
 
     .pc-preview-slot { display: none; }
 
-    /* Page-flip animation */
-    .pc-right {
-      transform-origin: left center;
+    /* Slide animation on passage change */
+    .pc-passages-track {
       will-change: transform;
-      backface-visibility: hidden;
     }
 
-    @keyframes pcFlipOut {
-      from { transform: perspective(1400px) rotateY(0deg); }
-      to   { transform: perspective(1400px) rotateY(-90deg); }
-    }
-    @keyframes pcFlipIn {
-      from { transform: perspective(1400px) rotateY(90deg); }
-      to   { transform: perspective(1400px) rotateY(0deg); }
-    }
-    @keyframes pcFlipOutReverse {
-      from { transform: perspective(1400px) rotateY(0deg); }
-      to   { transform: perspective(1400px) rotateY(90deg); }
-    }
-    @keyframes pcFlipInReverse {
-      from { transform: perspective(1400px) rotateY(-90deg); }
-      to   { transform: perspective(1400px) rotateY(0deg); }
-    }
-    .pc-right.flip-out         { animation: pcFlipOut        0.18s ease-in  forwards; }
-    .pc-right.flip-in          { animation: pcFlipIn         0.18s ease-out forwards; }
-    .pc-right.flip-out-reverse { animation: pcFlipOutReverse 0.18s ease-in  forwards; }
-    .pc-right.flip-in-reverse  { animation: pcFlipInReverse  0.18s ease-out forwards; }
+    @keyframes slideOutUp   { from { transform: translateY(0);     opacity: 1; } to { transform: translateY(-60px); opacity: 0; } }
+    @keyframes slideInUp    { from { transform: translateY(60px);  opacity: 0; } to { transform: translateY(0);     opacity: 1; } }
+    @keyframes slideOutDown { from { transform: translateY(0);     opacity: 1; } to { transform: translateY(60px);  opacity: 0; } }
+    @keyframes slideInDown  { from { transform: translateY(-60px); opacity: 0; } to { transform: translateY(0);     opacity: 1; } }
+
+    .pc-passages-track.slide-out-up   { animation: slideOutUp   0.18s ease-in  forwards; }
+    .pc-passages-track.slide-in-up    { animation: slideInUp    0.22s ease-out forwards; }
+    .pc-passages-track.slide-out-down { animation: slideOutDown 0.18s ease-in  forwards; }
+    .pc-passages-track.slide-in-down  { animation: slideInDown  0.22s ease-out forwards; }
   }
 
 </style>
@@ -512,27 +503,24 @@ function applyPassage() {
 }
 
 let isAnimating = false;
+const pcTrack = document.getElementById('pcPassagesTrack');
 
-function pageFlip(dir, callback) {
+function pageSlide(dir, callback) {
   if (!isPc()) { callback(); return; }
   if (isAnimating) return;
   isAnimating = true;
 
-  const outClass = dir === 'next' ? 'flip-out' : 'flip-out-reverse';
-  const inClass  = dir === 'next' ? 'flip-in'  : 'flip-in-reverse';
+  const outClass = dir === 'next' ? 'slide-out-up'   : 'slide-out-down';
+  const inClass  = dir === 'next' ? 'slide-in-up'    : 'slide-in-down';
 
-  pcRight.classList.add(outClass);
+  pcTrack.classList.add(outClass);
 
-  pcRight.addEventListener('animationend', function onOut() {
-    pcRight.removeEventListener('animationend', onOut);
-    pcRight.classList.remove(outClass);
-
+  pcTrack.addEventListener('animationend', function onOut() {
+    pcTrack.classList.remove(outClass);
     callback();
-
-    pcRight.classList.add(inClass);
-    pcRight.addEventListener('animationend', function onIn() {
-      pcRight.removeEventListener('animationend', onIn);
-      pcRight.classList.remove(inClass);
+    pcTrack.classList.add(inClass);
+    pcTrack.addEventListener('animationend', function onIn() {
+      pcTrack.classList.remove(inClass);
       isAnimating = false;
     }, { once: true });
   }, { once: true });
@@ -550,12 +538,12 @@ function loadNext() {
     }
     applyPassage();
   }
-  pageFlip('next', go);
+  pageSlide('next', go);
 }
 
 function loadPrev() {
   if (historyIdx <= 0) return;
-  pageFlip('prev', () => {
+  pageSlide('prev', () => {
     historyIdx--;
     current = history[historyIdx];
     applyPassage();

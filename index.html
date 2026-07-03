@@ -587,7 +587,9 @@ addInputListeners(inputArea);
 addInputListeners(mInputArea);
 
 // ── Click / double-tap to focus ───────────────────────
-document.getElementById('pcRight').addEventListener('click', () => inputArea.focus());
+// PC: clicking anywhere on the page keeps inputArea focused for keyboard shortcuts
+document.addEventListener('click', () => { if (isPc()) inputArea.focus(); });
+window.addEventListener('focus', () => { if (isPc()) inputArea.focus(); });
 
 (function() {
   let lastTap = 0;

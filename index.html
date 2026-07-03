@@ -201,16 +201,8 @@
       position: relative;
     }
 
-    .pc-progress {
-      font-size: 30px;
-      font-weight: 300;
-      line-height: 2;
-      color: #222;
-      font-variant-numeric: tabular-nums;
-    }
-
     .pc-book {
-      margin-top: 40px;
+      margin-top: 35px;
     }
 
     .pc-book-title {
@@ -221,9 +213,9 @@
     }
 
     .pc-book-meta {
-      font-size: 30px;
+      font-size: 15px;
       font-weight: 300;
-      color: #222;
+      color: #888;
       line-height: 2;
     }
 
@@ -303,6 +295,34 @@
     }
 
     .pc-preview-slot { display: none; }
+
+    /* Page-flip animation */
+    .pc-right {
+      transform-origin: left center;
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+
+    @keyframes pcFlipOut {
+      from { transform: perspective(1400px) rotateY(0deg); }
+      to   { transform: perspective(1400px) rotateY(-90deg); }
+    }
+    @keyframes pcFlipIn {
+      from { transform: perspective(1400px) rotateY(90deg); }
+      to   { transform: perspective(1400px) rotateY(0deg); }
+    }
+    @keyframes pcFlipOutReverse {
+      from { transform: perspective(1400px) rotateY(0deg); }
+      to   { transform: perspective(1400px) rotateY(90deg); }
+    }
+    @keyframes pcFlipInReverse {
+      from { transform: perspective(1400px) rotateY(-90deg); }
+      to   { transform: perspective(1400px) rotateY(0deg); }
+    }
+    .pc-right.flip-out         { animation: pcFlipOut        0.18s ease-in  forwards; }
+    .pc-right.flip-in          { animation: pcFlipIn         0.18s ease-out forwards; }
+    .pc-right.flip-out-reverse { animation: pcFlipOutReverse 0.18s ease-in  forwards; }
+    .pc-right.flip-in-reverse  { animation: pcFlipInReverse  0.18s ease-out forwards; }
   }
 
 </style>
@@ -312,7 +332,6 @@
 <!-- ── PC LAYOUT ─────────────────────────────────────── -->
 <div class="pc-layout">
   <aside class="pc-sidebar">
-    <div class="pc-progress" id="pcProgress">0 / 0</div>
     <div class="pc-book">
       <div class="pc-book-title" id="pcBookTitle"></div>
       <div class="pc-book-meta" id="pcBookMeta"></div>
@@ -396,12 +415,12 @@ let historyIdx = -1;
 const isPc = () => window.innerWidth > 1000;
 
 // PC elements
-const passageText  = document.getElementById('passageText');
-const pcProgress   = document.getElementById('pcProgress');
-const pcBookTitle  = document.getElementById('pcBookTitle');
-const pcBookMeta   = document.getElementById('pcBookMeta');
-const pcFontInfo   = document.getElementById('pcFontInfo');
-const inputArea    = document.getElementById('inputArea');
+const passageText = document.getElementById('passageText');
+const pcBookTitle = document.getElementById('pcBookTitle');
+const pcBookMeta  = document.getElementById('pcBookMeta');
+const pcFontInfo  = document.getElementById('pcFontInfo');
+const pcRight     = document.getElementById('pcRight');
+const inputArea   = document.getElementById('inputArea');
 
 // Mobile elements
 const mPassageText = document.getElementById('mPassageText');
@@ -446,7 +465,6 @@ function render() {
 
   if (isPc()) {
     passageText.innerHTML = html;
-    pcProgress.textContent = `${Math.min(typed.length, target.length)} / ${target.length}`;
   } else {
     mPassageText.innerHTML = html;
     mProgress.textContent = `${Math.min(typed.length, target.length)} / ${target.length}`;
@@ -493,24 +511,55 @@ function applyPassage() {
   }
 }
 
+let isAnimating = false;
+
+function pageFlip(dir, callback) {
+  if (!isPc()) { callback(); return; }
+  if (isAnimating) return;
+  isAnimating = true;
+
+  const outClass = dir === 'next' ? 'flip-out' : 'flip-out-reverse';
+  const inClass  = dir === 'next' ? 'flip-in'  : 'flip-in-reverse';
+
+  pcRight.classList.add(outClass);
+
+  pcRight.addEventListener('animationend', function onOut() {
+    pcRight.removeEventListener('animationend', onOut);
+    pcRight.classList.remove(outClass);
+
+    callback();
+
+    pcRight.classList.add(inClass);
+    pcRight.addEventListener('animationend', function onIn() {
+      pcRight.removeEventListener('animationend', onIn);
+      pcRight.classList.remove(inClass);
+      isAnimating = false;
+    }, { once: true });
+  }, { once: true });
+}
+
 function loadNext() {
-  if (historyIdx < history.length - 1) {
-    historyIdx++;
-    current = history[historyIdx];
-  } else {
-    current = pick();
-    history.push(current);
-    historyIdx = history.length - 1;
+  function go() {
+    if (historyIdx < history.length - 1) {
+      historyIdx++;
+      current = history[historyIdx];
+    } else {
+      current = pick();
+      history.push(current);
+      historyIdx = history.length - 1;
+    }
+    applyPassage();
   }
-  applyPassage();
+  pageFlip('next', go);
 }
 
 function loadPrev() {
-  if (historyIdx > 0) {
+  if (historyIdx <= 0) return;
+  pageFlip('prev', () => {
     historyIdx--;
     current = history[historyIdx];
     applyPassage();
-  }
+  });
 }
 
 // ── IME & input handling (attached to both textareas) ──

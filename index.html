@@ -321,7 +321,7 @@
     .pc-type-btn {
       position: absolute;
       bottom: 35px;
-      right: 35px;
+      right: 54px;
       font-size: 30px;
       font-weight: 300;
       color: #222;
@@ -417,6 +417,13 @@
       line-height: 2;
     }
 
+    .type-row-name a {
+      color: #222;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .type-row-name a:hover { color: #999; }
+
     .type-row-text {
       flex: 1;
       font-size: 30px;
@@ -472,7 +479,7 @@
   <button class="type-close" id="typeClose">&#x2715;</button>
   <div class="type-header">
     <span class="type-title">Type</span>
-    <input class="type-input" id="typeInput" placeholder="이 폰트의 모양은 어떤지 한번 써보시는 것도 좋겠습니다." autocomplete="off" spellcheck="false">
+    <input class="type-input" id="typeInput" placeholder="매일 기록하는 사람은 하루도 자신을 잊지 않습니다." autocomplete="off" spellcheck="false">
   </div>
   <div class="type-list" id="typeList"></div>
 </div>
@@ -751,7 +758,7 @@ document.getElementById('mNextBtn').addEventListener('click', loadNext);
 // ── Type page ─────────────────────────────────────────
 const typeInput = document.getElementById('typeInput');
 const typeList  = document.getElementById('typeList');
-const PLACEHOLDER = '이 폰트의 모양은 어떤지 한번 써보시는 것도 좋겠습니다.';
+const PLACEHOLDER = '매일 기록하는 사람은 하루도 자신을 잊지 않습니다.';
 
 function buildTypeList() {
   typeList.innerHTML = '';
@@ -761,7 +768,8 @@ function buildTypeList() {
 
     const name = document.createElement('div');
     name.className = 'type-row-name';
-    name.textContent = font;
+    const fontUrl = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
+    name.innerHTML = `<a href="${fontUrl}" target="_blank" rel="noopener">${font}&nbsp;↗</a>`;
 
     const text = document.createElement('div');
     text.className = 'type-row-text';

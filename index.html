@@ -256,7 +256,7 @@
     .pc-font-info {
       position: absolute;
       bottom: 35px;
-      left: 0;
+      left: 54px;
       font-size: 30px;
       font-weight: 300;
       color: #222;
@@ -357,19 +357,30 @@
       gap: 54px;
     }
 
-    .type-back {
+    .type-title {
       font-size: 30px;
       font-weight: 300;
       color: #222;
+      width: 200px;
+      flex-shrink: 0;
+    }
+
+    .type-close {
+      position: absolute;
+      top: 35px;
+      right: 35px;
       background: none;
       border: none;
       cursor: pointer;
+      color: #222;
       padding: 0;
+      line-height: 1;
+      font-size: 30px;
+      font-weight: 300;
       font-family: inherit;
-      flex-shrink: 0;
       transition: color 0.15s;
     }
-    .type-back:hover { color: #999; }
+    .type-close:hover { color: #999; }
 
     .type-input {
       flex: 1;
@@ -438,8 +449,8 @@
         <div class="pc-book-title" id="pcBookTitle"></div>
         <div class="pc-book-meta" id="pcBookMeta"></div>
       </div>
-      <div class="pc-font-info" id="pcFontInfo"></div>
     </div>
+    <div class="pc-font-info" id="pcFontInfo"></div>
     <button class="pc-type-btn" id="pcTypeBtn">Type</button>
   </aside>
 
@@ -458,8 +469,9 @@
 
 <!-- ── TYPE PAGE OVERLAY (PC only) ───────────────────── -->
 <div class="type-page" id="typePage">
+  <button class="type-close" id="typeClose">&#x2715;</button>
   <div class="type-header">
-    <button class="type-back" id="typeBack">Type</button>
+    <span class="type-title">Type</span>
     <input class="type-input" id="typeInput" placeholder="이 폰트의 모양은 어떤지 한번 써보시는 것도 좋겠습니다." autocomplete="off" spellcheck="false">
   </div>
   <div class="type-list" id="typeList"></div>
@@ -702,9 +714,13 @@ function addInputListeners(el) {
 addInputListeners(inputArea);
 addInputListeners(mInputArea);
 
+// ── Type page (declared early so keydown handler can reference it) ────────
+const typePage  = document.getElementById('typePage');
+
 // ── PC: document-level keydown so arrows always work regardless of focus ──
 document.addEventListener('keydown', (e) => {
   if (!isPc()) return;
+  if (typePage.classList.contains('open')) return;
   if (document.activeElement === inputArea) return; // handled by textarea listener
   if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'Tab' || e.key === 'Enter') {
     e.preventDefault(); loadNext();
@@ -715,7 +731,7 @@ document.addEventListener('keydown', (e) => {
 
 // ── Click / double-tap to focus ───────────────────────
 document.addEventListener('click', (e) => {
-  if (isPc() && !e.target.closest('a')) inputArea.focus();
+  if (isPc() && !typePage.classList.contains('open') && !e.target.closest('a')) inputArea.focus();
 });
 window.addEventListener('focus', () => { if (isPc()) inputArea.focus(); });
 
@@ -733,7 +749,6 @@ document.getElementById('mPrevBtn').addEventListener('click', loadPrev);
 document.getElementById('mNextBtn').addEventListener('click', loadNext);
 
 // ── Type page ─────────────────────────────────────────
-const typePage  = document.getElementById('typePage');
 const typeInput = document.getElementById('typeInput');
 const typeList  = document.getElementById('typeList');
 const PLACEHOLDER = '이 폰트의 모양은 어떤지 한번 써보시는 것도 좋겠습니다.';
@@ -772,18 +787,23 @@ function openTypePage() {
   buildTypeList();
   typePage.classList.add('open');
   typeInput.focus();
+  history.pushState({ typePage: true }, '');
 }
 
 function closeTypePage() {
   typePage.classList.remove('open');
   typeInput.value = '';
+  updateTypeRows();
 }
 
 document.getElementById('pcTypeBtn').addEventListener('click', openTypePage);
-document.getElementById('typeBack').addEventListener('click', closeTypePage);
+document.getElementById('typeClose').addEventListener('click', () => history.back());
 typeInput.addEventListener('input', updateTypeRows);
+window.addEventListener('popstate', () => {
+  if (typePage.classList.contains('open')) closeTypePage();
+});
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && typePage.classList.contains('open')) closeTypePage();
+  if (e.key === 'Escape' && typePage.classList.contains('open')) history.back();
 });
 
 // ── Init ──────────────────────────────────────────────

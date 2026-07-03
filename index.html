@@ -692,6 +692,7 @@ function applyPassage() {
   if (isPc()) {
     const font = FONTS[Math.floor(Math.random() * FONTS.length)];
     passageText.style.fontFamily = `'${font}', sans-serif`;
+    passageText.style.fontWeight = font === 'A2z' ? '800' : '900';
     const url = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
     pcFontInfo.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${font}&nbsp;↗</a>`;
     pcBookTitle.textContent = current.book.title;
@@ -843,6 +844,7 @@ function buildTypeList() {
     const text = document.createElement('div');
     text.className = 'type-row-text';
     text.style.fontFamily = `'${font}', sans-serif`;
+    text.style.fontWeight = font === 'A2z' ? '800' : '900';
     text.textContent = PLACEHOLDER;
     text.dataset.font = font;
 

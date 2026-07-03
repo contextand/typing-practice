@@ -245,36 +245,12 @@
 
     .pc-font-info a:hover { opacity: 0.5; }
 
-    .pc-nav {
-      position: absolute;
-      left: 54px;
-      top: 55vh;
-      display: flex;
-      flex-direction: column;
-      gap: 80px;
-    }
-
-    .pc-nav button {
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      color: #aaa;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.15s;
-    }
-
-    .pc-nav button:hover { color: #1a1a1a; }
-
     /* Right panel — fills remaining 50% */
     .pc-right {
       flex: 1;
       height: 100vh;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       position: relative;
     }
 
@@ -328,18 +304,6 @@
       <div class="pc-book-meta" id="pcBookMeta"></div>
     </div>
     <div class="pc-font-info" id="pcFontInfo"></div>
-    <nav class="pc-nav">
-      <button id="pcPrevBtn" aria-label="이전 문장">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M5 15L12 8L19 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <button id="pcNextBtn" aria-label="다음 문장">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M5 9L12 16L19 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </nav>
   </aside>
 
   <div class="pc-right" id="pcRight">
@@ -481,6 +445,13 @@ const FONTS = [
 ];
 const FONT_LINKS = { 'JoseonPalace': 'https://event.chosun.com/100/100font.html' };
 
+const SIDEBAR_COLORS = [
+  '#f2c4b0', '#f2d4a0', '#f0e090', '#c8e0a0',
+  '#a8d8c0', '#a0cce0', '#b0b8e8', '#caaee0',
+  '#e0a8cc', '#e8a8a8', '#c8d8a0', '#a0d0d0',
+];
+const pcSidebar = document.querySelector('.pc-sidebar');
+
 function applyPassage() {
   resetState();
 
@@ -491,6 +462,7 @@ function applyPassage() {
     pcFontInfo.innerHTML = `${font}&nbsp;<a href="${url}" target="_blank" rel="noopener">↗</a>`;
     pcBookTitle.textContent = current.book.title;
     pcBookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
+    pcSidebar.style.backgroundColor = SIDEBAR_COLORS[Math.floor(Math.random() * SIDEBAR_COLORS.length)];
 
     render();
     inputArea.focus();
@@ -599,8 +571,6 @@ document.getElementById('pcRight').addEventListener('click', () => inputArea.foc
 })();
 
 // ── Button listeners ──────────────────────────────────
-document.getElementById('pcPrevBtn').addEventListener('click', loadPrev);
-document.getElementById('pcNextBtn').addEventListener('click', loadNext);
 document.getElementById('mPrevBtn').addEventListener('click', loadPrev);
 document.getElementById('mNextBtn').addEventListener('click', loadNext);
 

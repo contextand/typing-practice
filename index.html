@@ -317,6 +317,105 @@
     @keyframes slideOutDown { from { transform: translateY(0);     opacity: 1; } to { transform: translateY(60px);  opacity: 0; } }
     @keyframes slideInDown  { from { transform: translateY(-60px); opacity: 0; } to { transform: translateY(0);     opacity: 1; } }
 
+    /* Type button in sidebar bottom-right */
+    .pc-type-btn {
+      position: absolute;
+      bottom: 35px;
+      right: 35px;
+      font-size: 30px;
+      font-weight: 300;
+      color: #222;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+      transition: color 0.15s;
+    }
+    .pc-type-btn:hover { color: #999; }
+
+    /* Type page overlay */
+    .type-page {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px #1a1a1a;
+      z-index: 200;
+      flex-direction: column;
+    }
+    .type-page.open { display: flex; }
+
+    .type-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 54px;
+      height: 130px;
+      border-bottom: 1px solid #1a1a1a;
+      gap: 54px;
+    }
+
+    .type-back {
+      font-size: 30px;
+      font-weight: 300;
+      color: #222;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .type-back:hover { color: #999; }
+
+    .type-input {
+      flex: 1;
+      font-size: 30px;
+      font-weight: 900;
+      color: #1a1a1a;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .type-input::placeholder { color: #ddd; }
+
+    .type-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .type-row {
+      display: flex;
+      align-items: center;
+      padding: 0 54px;
+      min-height: 104px;
+      border-bottom: 1px solid #1a1a1a;
+      gap: 54px;
+    }
+
+    .type-row-name {
+      font-size: 15px;
+      font-weight: 300;
+      color: #222;
+      width: 200px;
+      flex-shrink: 0;
+      line-height: 2;
+    }
+
+    .type-row-text {
+      flex: 1;
+      font-size: 30px;
+      font-weight: 900;
+      color: #ddd;
+      line-height: 2;
+      word-break: keep-all;
+      white-space: pre-wrap;
+    }
+
     .pc-passages-track.slide-out-up,
     .pc-sidebar-content.slide-out-up   { animation: slideOutUp   0.18s ease-in  forwards; }
     .pc-passages-track.slide-in-up,
@@ -341,6 +440,7 @@
       </div>
       <div class="pc-font-info" id="pcFontInfo"></div>
     </div>
+    <button class="pc-type-btn" id="pcTypeBtn">Type</button>
   </aside>
 
   <div class="pc-right" id="pcRight">
@@ -354,6 +454,15 @@
     </div>
     <textarea class="pc-input" id="inputArea" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
   </div>
+</div>
+
+<!-- ── TYPE PAGE OVERLAY (PC only) ───────────────────── -->
+<div class="type-page" id="typePage">
+  <div class="type-header">
+    <button class="type-back" id="typeBack">Type</button>
+    <input class="type-input" id="typeInput" placeholder="이 폰트의 모양은 어떤지 한번 써보시는 것도 좋겠습니다." autocomplete="off" spellcheck="false">
+  </div>
+  <div class="type-list" id="typeList"></div>
 </div>
 
 <!-- ── MOBILE LAYOUT ─────────────────────────────────── -->
@@ -622,6 +731,60 @@ window.addEventListener('focus', () => { if (isPc()) inputArea.focus(); });
 // ── Button listeners ──────────────────────────────────
 document.getElementById('mPrevBtn').addEventListener('click', loadPrev);
 document.getElementById('mNextBtn').addEventListener('click', loadNext);
+
+// ── Type page ─────────────────────────────────────────
+const typePage  = document.getElementById('typePage');
+const typeInput = document.getElementById('typeInput');
+const typeList  = document.getElementById('typeList');
+const PLACEHOLDER = '이 폰트의 모양은 어떤지 한번 써보시는 것도 좋겠습니다.';
+
+function buildTypeList() {
+  typeList.innerHTML = '';
+  FONTS.forEach(font => {
+    const row = document.createElement('div');
+    row.className = 'type-row';
+
+    const name = document.createElement('div');
+    name.className = 'type-row-name';
+    name.textContent = font;
+
+    const text = document.createElement('div');
+    text.className = 'type-row-text';
+    text.style.fontFamily = `'${font}', sans-serif`;
+    text.textContent = PLACEHOLDER;
+    text.dataset.font = font;
+
+    row.appendChild(name);
+    row.appendChild(text);
+    typeList.appendChild(row);
+  });
+}
+
+function updateTypeRows() {
+  const val = typeInput.value;
+  typeList.querySelectorAll('.type-row-text').forEach(el => {
+    el.textContent = val || PLACEHOLDER;
+    el.style.color = val ? '#1a1a1a' : '#ddd';
+  });
+}
+
+function openTypePage() {
+  buildTypeList();
+  typePage.classList.add('open');
+  typeInput.focus();
+}
+
+function closeTypePage() {
+  typePage.classList.remove('open');
+  typeInput.value = '';
+}
+
+document.getElementById('pcTypeBtn').addEventListener('click', openTypePage);
+document.getElementById('typeBack').addEventListener('click', closeTypePage);
+typeInput.addEventListener('input', updateTypeRows);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && typePage.classList.contains('open')) closeTypePage();
+});
 
 // ── Init ──────────────────────────────────────────────
 current = pick();

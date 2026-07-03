@@ -586,9 +586,21 @@ function addInputListeners(el) {
 addInputListeners(inputArea);
 addInputListeners(mInputArea);
 
+// ── PC: document-level keydown so arrows always work regardless of focus ──
+document.addEventListener('keydown', (e) => {
+  if (!isPc()) return;
+  if (document.activeElement === inputArea) return; // handled by textarea listener
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'Tab' || e.key === 'Enter') {
+    e.preventDefault(); loadNext();
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    e.preventDefault(); loadPrev();
+  }
+});
+
 // ── Click / double-tap to focus ───────────────────────
-// PC: clicking anywhere on the page keeps inputArea focused for keyboard shortcuts
-document.addEventListener('click', () => { if (isPc()) inputArea.focus(); });
+document.addEventListener('click', (e) => {
+  if (isPc() && !e.target.closest('a')) inputArea.focus();
+});
 window.addEventListener('focus', () => { if (isPc()) inputArea.focus(); });
 
 (function() {

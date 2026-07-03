@@ -245,10 +245,10 @@
       text-decoration: none;
       font-size: 30px;
       font-weight: 300;
-      transition: opacity 0.15s;
+      transition: color 0.15s;
     }
 
-    .pc-font-info a:hover { opacity: 0.5; }
+    .pc-font-info a:hover { color: #999; }
 
     /* Right panel — fills remaining 50% */
     .pc-right {
@@ -465,7 +465,7 @@ function applyPassage() {
     const font = FONTS[Math.floor(Math.random() * FONTS.length)];
     passageText.style.fontFamily = `'${font}', sans-serif`;
     const url = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
-    pcFontInfo.innerHTML = `${font}&nbsp;<a href="${url}" target="_blank" rel="noopener">↗</a>`;
+    pcFontInfo.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${font}&nbsp;↗</a>`;
     pcBookTitle.textContent = current.book.title;
     pcBookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
     render();

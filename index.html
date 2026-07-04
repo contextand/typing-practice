@@ -925,24 +925,32 @@ function openTypePage() {
   updateTypeRows();
   typePage.classList.add('open');
   typeInput.focus();
-  history.pushState({ typePage: true }, '');
+  if (location.hash !== '#type') location.hash = 'type';
 }
 
 function closeTypePage() {
   typePage.classList.remove('open');
   typeInput.value = '';
   updateTypeRows();
+  if (location.hash === '#type') location.hash = '';
 }
 
+window.addEventListener('hashchange', () => {
+  if (location.hash === '#type') {
+    if (!typePage.classList.contains('open')) openTypePage();
+  } else {
+    if (typePage.classList.contains('open')) closeTypePage();
+  }
+});
+
 document.getElementById('pcTypeBtn').addEventListener('click', openTypePage);
-document.getElementById('typeClose').addEventListener('click', () => history.back());
+document.getElementById('typeClose').addEventListener('click', closeTypePage);
 typeInput.addEventListener('input', updateTypeRows);
-window.addEventListener('popstate', () => {
-  if (typePage.classList.contains('open')) closeTypePage();
-});
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && typePage.classList.contains('open')) history.back();
+  if (e.key === 'Escape' && typePage.classList.contains('open')) closeTypePage();
 });
+
+if (location.hash === '#type') openTypePage();
 
 // ── Dark mode ─────────────────────────────────────────
 const pcDarkBtn = document.getElementById('pcDarkBtn');

@@ -575,7 +575,7 @@
         <div class="pc-book-meta" id="pcBookMeta"></div>
       </div>
     </div>
-    <button class="pc-dark-btn" id="pcDarkBtn">dark</button>
+    <button class="pc-dark-btn" id="pcDarkBtn">Dark</button>
     <div class="pc-font-info" id="pcFontInfo"></div>
     <button class="pc-type-btn" id="pcTypeBtn">Type</button>
   </aside>
@@ -918,6 +918,7 @@ function updateTypeRows() {
 
 function openTypePage() {
   buildTypeList();
+  updateTypeRows();
   typePage.classList.add('open');
   typeInput.focus();
   history.pushState({ typePage: true }, '');
@@ -943,7 +944,7 @@ document.addEventListener('keydown', (e) => {
 const pcDarkBtn = document.getElementById('pcDarkBtn');
 pcDarkBtn.addEventListener('click', () => {
   const isDark = document.body.classList.toggle('dark');
-  pcDarkBtn.textContent = isDark ? 'light' : 'dark';
+  pcDarkBtn.textContent = isDark ? 'Light' : 'Dark';
   updateTypeRows();
 });
 

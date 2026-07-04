@@ -508,6 +508,58 @@
     .pc-sidebar-content.slide-out-down { animation: slideOutDown 0.18s ease-in  forwards; }
     .pc-passages-track.slide-in-down,
     .pc-sidebar-content.slide-in-down  { animation: slideInDown  0.22s ease-out forwards; }
+
+    /* Dark mode button */
+    .pc-dark-btn {
+      position: absolute;
+      top: 35px;
+      right: 54px;
+      font-size: 15px;
+      font-weight: 300;
+      color: #222;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+      transition: color 0.15s;
+    }
+    .pc-dark-btn:hover { color: #999; }
+  }
+
+  /* ── DARK MODE ────────────────────────────────────── */
+  body.dark {
+    background: #1a1a1a;
+    color: #ccc;
+  }
+  body.dark .char { color: #555; }
+  body.dark .char.correct { color: #ddd; }
+  body.dark .char.composing::before { color: #ddd; }
+  body.dark .char.cursor-after::after,
+  body.dark .char.cursor-before::before { background: #ddd; }
+
+  @media (min-width: 1001px) {
+    body.dark .pc-layout { box-shadow: inset 0 0 0 1px #333; }
+    body.dark .pc-layout::after { background: #333; }
+    body.dark .pc-book-title,
+    body.dark .pc-book-meta { color: #ccc; }
+    body.dark .pc-font-info,
+    body.dark .pc-font-info a,
+    body.dark .pc-type-btn,
+    body.dark .pc-dark-btn { color: #ccc; }
+    body.dark .pc-font-info a:hover,
+    body.dark .pc-type-btn:hover,
+    body.dark .pc-dark-btn:hover { color: #666; }
+    body.dark .type-page { background: #1a1a1a; box-shadow: inset 0 0 0 1px #333; }
+    body.dark .type-header { border-bottom-color: #333; }
+    body.dark .type-title,
+    body.dark .type-close { color: #ccc; }
+    body.dark .type-close:hover { color: #666; }
+    body.dark .type-input { color: #ddd; }
+    body.dark .type-input::placeholder { color: #444; }
+    body.dark .type-row { border-bottom-color: #333; }
+    body.dark .type-row-name a { color: #888; }
+    body.dark .type-row-name a:hover { color: #666; }
   }
 
 </style>
@@ -523,6 +575,7 @@
         <div class="pc-book-meta" id="pcBookMeta"></div>
       </div>
     </div>
+    <button class="pc-dark-btn" id="pcDarkBtn">dark</button>
     <div class="pc-font-info" id="pcFontInfo"></div>
     <button class="pc-type-btn" id="pcTypeBtn">Type</button>
   </aside>
@@ -856,9 +909,10 @@ function buildTypeList() {
 
 function updateTypeRows() {
   const val = typeInput.value;
+  const isDark = document.body.classList.contains('dark');
   typeList.querySelectorAll('.type-row-text').forEach(el => {
     el.textContent = val || PLACEHOLDER;
-    el.style.color = val ? '#1a1a1a' : '#ddd';
+    el.style.color = val ? (isDark ? '#ddd' : '#1a1a1a') : (isDark ? '#444' : '#ddd');
   });
 }
 
@@ -883,6 +937,14 @@ window.addEventListener('popstate', () => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && typePage.classList.contains('open')) history.back();
+});
+
+// ── Dark mode ─────────────────────────────────────────
+const pcDarkBtn = document.getElementById('pcDarkBtn');
+pcDarkBtn.addEventListener('click', () => {
+  const isDark = document.body.classList.toggle('dark');
+  pcDarkBtn.textContent = isDark ? 'light' : 'dark';
+  updateTypeRows();
 });
 
 // ── Init ──────────────────────────────────────────────

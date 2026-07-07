@@ -805,6 +805,13 @@ BOOKS.forEach(book => {
   });
 });
 
+const quotesBook = {
+  title: '발췌의 발췌',
+  author: '한 번 더 발췌한 문장들, 출처 정리 못함 ㅈㅅ',
+  genre: '', publisher: ''
+};
+QUOTES.forEach(text => ALL.push({ text, book: quotesBook }));
+
 let current = null;
 let typed = "";
 let isComposing = false;

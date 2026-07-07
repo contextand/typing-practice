@@ -510,25 +510,6 @@
     .pc-passages-track.slide-in-down,
     .pc-sidebar-content.slide-in-down  { animation: slideInDown  0.22s ease-out forwards; }
 
-    /* 글방 button */
-    .pc-geulbang-btn {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      color: #222;
-      line-height: 0;
-      transition: color 0.15s;
-      display: none;
-    }
-    .pc-geulbang-btn .icon-hover { display: none; }
-    .pc-geulbang-btn:hover .icon-default { display: none; }
-    .pc-geulbang-btn:hover .icon-hover { display: block; }
-
     /* Dark mode button */
     .pc-dark-btn {
       position: absolute;
@@ -567,7 +548,6 @@
     body.dark .pc-font-info a,
     body.dark .pc-type-btn,
     body.dark .pc-dark-btn { color: #ccc; }
-    body.dark .pc-geulbang-btn { color: #ccc; }
     body.dark .pc-font-info a:hover,
     body.dark .pc-type-btn:hover,
     body.dark .pc-dark-btn:hover { color: #666; }
@@ -596,10 +576,6 @@
         <div class="pc-book-meta" id="pcBookMeta"></div>
       </div>
     </div>
-    <button class="pc-geulbang-btn" id="pcGeulbangBtn" title="글방">
-      <svg class="icon-default" width="57" height="57" viewBox="0 0 57 57" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0.5" y="0.5" width="55.7364" height="55.7364" stroke="currentColor" stroke-linejoin="round"/></svg>
-      <svg class="icon-hover" width="84" height="76" viewBox="0 0 84 76" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0.5" y="19.1592" width="55.7364" height="55.7364" stroke="currentColor" stroke-linejoin="round"/><path d="M56.2363 19.1596L82.5328 0.5V56.2364L56.2363 74.896V19.1596Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></svg>
-    </button>
     <button class="pc-dark-btn" id="pcDarkBtn">Dark</button>
     <div class="pc-font-info" id="pcFontInfo"></div>
     <button class="pc-type-btn" id="pcTypeBtn">Type</button>
@@ -735,10 +711,6 @@ function render() {
   }
 
   if (!isComposing && typed.length >= target.length && typed === target) {
-    if (isPc() && !localStorage.getItem('geulbangUnlocked')) {
-      localStorage.setItem('geulbangUnlocked', 'true');
-      document.getElementById('pcGeulbangBtn').style.display = 'block';
-    }
     setTimeout(loadNext, 500);
   }
 }
@@ -979,11 +951,6 @@ document.addEventListener('keydown', (e) => {
 });
 
 if (location.hash === '#type') openTypePage();
-
-// ── 글방 button ───────────────────────────────────────
-const pcGeulbangBtn = document.getElementById('pcGeulbangBtn');
-if (localStorage.getItem('geulbangUnlocked')) pcGeulbangBtn.style.display = 'block';
-pcGeulbangBtn.addEventListener('click', () => window.open('/geulbang.html', '_blank'));
 
 // ── Dark mode ─────────────────────────────────────────
 const pcDarkBtn = document.getElementById('pcDarkBtn');

@@ -377,12 +377,6 @@
       margin-top: 0;
     }
 
-    .pc-book-header {
-      display: flex;
-      align-items: center;
-      gap: 35px;
-    }
-
     .pc-book-title {
       font-size: 30px;
       font-weight: 300;
@@ -725,13 +719,11 @@ body.dark .pc-font-info a:hover,
   <aside class="pc-sidebar">
     <div class="pc-sidebar-content" id="pcSidebarContent">
       <div class="pc-book">
-        <div class="pc-book-header">
-          <div class="pc-book-title" id="pcBookTitle"></div>
-          <button class="pc-book-lock" id="pcBookLock" title="책 고정">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor"/></svg>
-          </button>
-        </div>
+        <div class="pc-book-title" id="pcBookTitle"></div>
         <div class="pc-book-meta" id="pcBookMeta"></div>
+        <button class="pc-book-lock" id="pcBookLock" title="책 고정">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor"/></svg>
+        </button>
       </div>
     </div>
     <button class="pc-dark-btn" id="pcDarkBtn">Dark</button>

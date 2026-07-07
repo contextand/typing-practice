@@ -433,6 +433,41 @@
     .pc-font-lock svg circle { fill: none; transition: fill 0.15s; }
     .pc-font-lock.locked svg circle { fill: currentColor; }
 
+    .pc-sliders {
+      position: absolute;
+      bottom: 120px;
+      left: 44px;
+      right: 54px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 101;
+    }
+    .pc-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, #222 50%, #ddd 50%);
+      outline: none;
+      border: none;
+      cursor: ew-resize;
+      margin: 8px 0;
+    }
+    .pc-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 1px;
+      height: 16px;
+      background: transparent;
+      cursor: ew-resize;
+    }
+    .pc-slider::-moz-range-thumb {
+      width: 1px;
+      height: 16px;
+      background: transparent;
+      border: none;
+      cursor: ew-resize;
+    }
 
     /* Right panel — fills remaining 50% */
     .pc-right {
@@ -657,6 +692,7 @@ body.dark .pc-font-info a:hover,
     body.dark .type-row { border-bottom-color: #333; }
     body.dark .type-row-name a { color: #888; }
     body.dark .type-row-name a:hover { color: #666; }
+    body.dark .pc-slider { background: linear-gradient(to right, #ccc 50%, #444 50%); }
   }
 
 </style>
@@ -673,7 +709,11 @@ body.dark .pc-font-info a:hover,
       </div>
     </div>
     <button class="pc-dark-btn" id="pcDarkBtn">Dark</button>
-<div class="pc-font-info" id="pcFontInfo">
+    <div class="pc-sliders" id="pcSliders">
+      <input type="range" class="pc-slider" id="pcSliderLH" min="0" max="100" value="50">
+      <input type="range" class="pc-slider" id="pcSliderLS" min="0" max="100" value="50">
+    </div>
+    <div class="pc-font-info" id="pcFontInfo">
       <a id="pcFontLink" target="_blank" rel="noopener"></a>
       <button class="pc-font-lock" id="pcFontLock" title="폰트 고정">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor"/></svg>
@@ -1098,7 +1138,33 @@ pcDarkBtn.addEventListener('click', () => {
   const isDark = document.body.classList.toggle('dark');
   pcDarkBtn.textContent = isDark ? 'Light' : 'Dark';
   updateTypeRows();
+  updateSliderBg(pcSliderLH);
+  updateSliderBg(pcSliderLS);
 });
+
+// Sliders — line-height & letter-spacing
+const pcSliderLH = document.getElementById('pcSliderLH');
+const pcSliderLS = document.getElementById('pcSliderLS');
+
+function updateSliderBg(slider) {
+  const pct = slider.value;
+  const dark = document.body.classList.contains('dark');
+  const filled = dark ? '#ccc' : '#222';
+  const empty  = dark ? '#444' : '#ddd';
+  slider.style.background = `linear-gradient(to right, ${filled} ${pct}%, ${empty} ${pct}%)`;
+}
+
+function applySliders() {
+  const lh = 1.0 + (pcSliderLH.value / 100) * 2.0;
+  const ls = -0.08 + (pcSliderLS.value / 100) * 0.20;
+  passageText.style.lineHeight = lh;
+  passageText.style.letterSpacing = ls + 'em';
+}
+
+pcSliderLH.addEventListener('input', () => { updateSliderBg(pcSliderLH); applySliders(); });
+pcSliderLS.addEventListener('input', () => { updateSliderBg(pcSliderLS); applySliders(); });
+updateSliderBg(pcSliderLH);
+updateSliderBg(pcSliderLS);
 
 // ── Init ──────────────────────────────────────────────
 current = pick();

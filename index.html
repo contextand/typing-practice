@@ -737,7 +737,7 @@ function render() {
   if (!isComposing && typed.length >= target.length && typed === target) {
     if (isPc() && !localStorage.getItem('geulbangUnlocked')) {
       localStorage.setItem('geulbangUnlocked', 'true');
-      document.getElementById('pcGeulbangBtn').style.display = '';
+      document.getElementById('pcGeulbangBtn').style.display = 'block';
     }
     setTimeout(loadNext, 500);
   }
@@ -982,7 +982,7 @@ if (location.hash === '#type') openTypePage();
 
 // ── 글방 button ───────────────────────────────────────
 const pcGeulbangBtn = document.getElementById('pcGeulbangBtn');
-if (localStorage.getItem('geulbangUnlocked')) pcGeulbangBtn.style.display = '';
+if (localStorage.getItem('geulbangUnlocked')) pcGeulbangBtn.style.display = 'block';
 pcGeulbangBtn.addEventListener('click', () => window.open('/geulbang.html', '_blank'));
 
 // ── Dark mode ─────────────────────────────────────────

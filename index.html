@@ -418,6 +418,43 @@
 
     .pc-font-info a:hover { color: #999; }
 
+    .pc-font-lock {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: #222;
+      line-height: 0;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .pc-font-lock:hover { color: #999; }
+    .pc-font-lock svg circle { fill: none; transition: fill 0.15s; }
+    .pc-font-lock.locked svg circle { fill: currentColor; }
+
+    .pc-font-dropdown {
+      display: none;
+      position: absolute;
+      bottom: 80px;
+      left: 44px;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px #1a1a1a;
+      max-height: 320px;
+      overflow-y: auto;
+      z-index: 100;
+      min-width: 220px;
+    }
+    .pc-font-dropdown-item {
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: 300;
+      color: #222;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .pc-font-dropdown-item:hover { background: #f5f5f5; }
+    .pc-font-dropdown-item.active { font-weight: 700; }
+
     /* Right panel — fills remaining 50% */
     .pc-right {
       flex: 1;
@@ -623,8 +660,12 @@
     body.dark .pc-book-meta { color: #ccc; }
     body.dark .pc-font-info,
     body.dark .pc-font-info a,
+    body.dark .pc-font-lock,
     body.dark .pc-type-btn,
     body.dark .pc-dark-btn { color: #ccc; }
+    body.dark .pc-font-dropdown { background: #1a1a1a; box-shadow: inset 0 0 0 1px #333; }
+    body.dark .pc-font-dropdown-item { color: #ccc; }
+    body.dark .pc-font-dropdown-item:hover { background: #2a2a2a; }
     body.dark .pc-font-info a:hover,
     body.dark .pc-type-btn:hover,
     body.dark .pc-dark-btn:hover { color: #666; }
@@ -654,7 +695,13 @@
       </div>
     </div>
     <button class="pc-dark-btn" id="pcDarkBtn">Dark</button>
-    <div class="pc-font-info" id="pcFontInfo"></div>
+    <div class="pc-font-dropdown" id="pcFontDropdown"></div>
+    <div class="pc-font-info" id="pcFontInfo">
+      <a id="pcFontLink" target="_blank" rel="noopener"></a>
+      <button class="pc-font-lock" id="pcFontLock" title="폰트 고정">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor"/></svg>
+      </button>
+    </div>
     <button class="pc-type-btn" id="pcTypeBtn">Type</button>
   </aside>
 
@@ -830,15 +877,75 @@ const FONT_LINKS = {
 
 const pcSidebarContent = document.getElementById('pcSidebarContent');
 
+let currentFont = null;
+let fontLocked = false;
+let lockedFont = null;
+
+const pcFontLink     = document.getElementById('pcFontLink');
+const pcFontLock     = document.getElementById('pcFontLock');
+const pcFontDropdown = document.getElementById('pcFontDropdown');
+
+function setPassageFont(font) {
+  passageText.style.fontFamily = `'${font}', sans-serif`;
+  passageText.style.fontWeight = font === 'A2z' ? '800' : '900';
+}
+
+function applyFont(font) {
+  currentFont = font;
+  if (fontLocked) lockedFont = font;
+  setPassageFont(font);
+  const url = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
+  pcFontLink.href = url;
+  pcFontLink.innerHTML = `${font}&nbsp;↗`;
+  pcFontDropdown.querySelectorAll('.pc-font-dropdown-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.font === font);
+  });
+}
+
+// Font dropdown
+(function() {
+  FONTS.forEach(font => {
+    const item = document.createElement('div');
+    item.className = 'pc-font-dropdown-item';
+    item.textContent = font;
+    item.dataset.font = font;
+    item.addEventListener('mouseenter', () => setPassageFont(font));
+    item.addEventListener('click', () => { applyFont(font); hideDropdown(); });
+    pcFontDropdown.appendChild(item);
+  });
+
+  let dropdownTimer;
+  function showDropdown() {
+    clearTimeout(dropdownTimer);
+    pcFontDropdown.style.display = 'block';
+  }
+  function hideDropdown() {
+    dropdownTimer = setTimeout(() => {
+      pcFontDropdown.style.display = 'none';
+      if (currentFont) setPassageFont(currentFont);
+    }, 150);
+  }
+
+  document.getElementById('pcFontInfo').addEventListener('mouseenter', showDropdown);
+  document.getElementById('pcFontInfo').addEventListener('mouseleave', hideDropdown);
+  pcFontDropdown.addEventListener('mouseenter', () => clearTimeout(dropdownTimer));
+  pcFontDropdown.addEventListener('mouseleave', hideDropdown);
+})();
+
+// Lock button
+pcFontLock.addEventListener('click', (e) => {
+  e.stopPropagation();
+  fontLocked = !fontLocked;
+  lockedFont = fontLocked ? currentFont : null;
+  pcFontLock.classList.toggle('locked', fontLocked);
+});
+
 function applyPassage() {
   resetState();
 
   if (isPc()) {
-    const font = FONTS[Math.floor(Math.random() * FONTS.length)];
-    passageText.style.fontFamily = `'${font}', sans-serif`;
-    passageText.style.fontWeight = font === 'A2z' ? '800' : '900';
-    const url = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
-    pcFontInfo.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${font}&nbsp;↗</a>`;
+    const font = fontLocked ? lockedFont : FONTS[Math.floor(Math.random() * FONTS.length)];
+    applyFont(font);
     pcBookTitle.textContent = current.book.title;
     pcBookMeta.textContent = [current.book.author, current.book.genre, current.book.publisher].filter(Boolean).join(' · ');
     render();

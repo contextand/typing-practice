@@ -676,8 +676,12 @@
   /* ── QUOTES MODE ─────────────────────────────────── */
   body.quotes-yellow { background: #ffde59; }
   body.quotes-green  { background: #7ed957; }
-  body.quotes-yellow .pc-dark-btn { color: #7ed957; }
-  body.quotes-green  .pc-dark-btn { color: #ffde59; }
+  body.quotes-yellow .char,
+  body.quotes-green  .char { color: rgba(0,0,0,0.2); }
+  body.quotes-yellow .char.wrong,
+  body.quotes-green  .char.wrong { color: rgba(0,0,0,0.2); }
+  body.quotes-yellow .pc-slider,
+  body.quotes-green  .pc-slider { background: linear-gradient(to right, #222 50%, rgba(0,0,0,0.2) 50%); }
 
   /* ── DARK MODE ────────────────────────────────────── */
   body.dark {
@@ -965,7 +969,14 @@ pcFontLock.addEventListener('click', (e) => {
 function applyPassage() {
   resetState();
   document.body.classList.remove('quotes-yellow', 'quotes-green');
-  if (current.book === quotesBook) document.body.classList.add('quotes-yellow');
+  if (current.book === quotesBook) {
+    document.body.classList.add('quotes-yellow');
+    pcDarkBtn.textContent = 'Green';
+  } else {
+    pcDarkBtn.textContent = document.body.classList.contains('dark') ? 'Light' : 'Dark';
+  }
+  updateSliderBg(pcSliderLH);
+  updateSliderBg(pcSliderLS);
 
   if (isPc()) {
     const font = fontLocked ? lockedFont : FONTS[Math.floor(Math.random() * FONTS.length)];
@@ -1184,8 +1195,12 @@ const pcDarkBtn = document.getElementById('pcDarkBtn');
 pcDarkBtn.addEventListener('click', () => {
   if (document.body.classList.contains('quotes-yellow')) {
     document.body.classList.replace('quotes-yellow', 'quotes-green');
+    pcDarkBtn.textContent = 'Yellow';
+    updateSliderBg(pcSliderLH); updateSliderBg(pcSliderLS);
   } else if (document.body.classList.contains('quotes-green')) {
     document.body.classList.replace('quotes-green', 'quotes-yellow');
+    pcDarkBtn.textContent = 'Green';
+    updateSliderBg(pcSliderLH); updateSliderBg(pcSliderLS);
   } else {
     const isDark = document.body.classList.toggle('dark');
     pcDarkBtn.textContent = isDark ? 'Light' : 'Dark';
@@ -1202,8 +1217,9 @@ const pcSliderLS = document.getElementById('pcSliderLS');
 function updateSliderBg(slider) {
   const pct = slider.value;
   const dark = document.body.classList.contains('dark');
+  const quotes = document.body.classList.contains('quotes-yellow') || document.body.classList.contains('quotes-green');
   const filled = dark ? '#ccc' : '#222';
-  const empty  = dark ? '#444' : '#ddd';
+  const empty  = dark ? '#444' : quotes ? 'rgba(0,0,0,0.2)' : '#ddd';
   slider.style.background = `linear-gradient(to right, ${filled} ${pct}%, ${empty} ${pct}%)`;
 }
 

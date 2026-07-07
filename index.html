@@ -8,6 +8,83 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@300..800&family=Chiron+GoRound+TC:wght@200..900&family=Chiron+Hei+HK:ital,wght@0,200..900;1,200..900&family=Diphylleia&family=Gowun+Dodum&family=Hahmlet:wght@100..900&family=Nanum+Gothic+Coding&family=Nanum+Myeongjo&family=Noto+Sans+KR:wght@100..900&family=Song+Myung&family=Sunflower:wght@300&display=swap" rel="stylesheet">
 <style>
+  @import url('https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css');
+
+  @font-face {
+    font-family: 'ChosunIlboMyungjo';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/Chosunilbo_myungjo.woff') format('woff');
+    font-weight: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Giants';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-1@1.1/Giants-Regular.woff2') format('woff2');
+    font-weight: 400; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Giants';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-1@1.1/Giants-Bold.woff2') format('woff2');
+    font-weight: 700; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Independent';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Dokrip.woff') format('woff');
+    font-weight: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'PyeojinGothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2504-1@1.0/PyeojinGothic-Light.woff2') format('woff2');
+    font-weight: 300; font-display: swap;
+  }
+  @font-face {
+    font-family: 'PyeojinGothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2504-1@1.0/PyeojinGothic-Regular.woff2') format('woff2');
+    font-weight: 400; font-display: swap;
+  }
+  @font-face {
+    font-family: 'PyeojinGothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2504-1@1.0/PyeojinGothic-Bold.woff2') format('woff2');
+    font-weight: 700; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Ridibatang';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff') format('woff');
+    font-weight: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'SchoolSafetyNotification';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimAllimjangTTF-R.woff2') format('woff2');
+    font-weight: 400; font-display: swap;
+  }
+  @font-face {
+    font-family: 'SchoolSafetyNotification';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimAllimjangTTF-B.woff2') format('woff2');
+    font-weight: 700; font-display: swap;
+  }
+  @font-face {
+    font-family: 'SchoolSafetyRoundedSmile';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimDunggeunmisoTTF-R.woff2') format('woff2');
+    font-weight: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'SchoolSafetyRoundedSmile';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimDunggeunmisoTTF-B.woff2') format('woff2');
+    font-weight: 700; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Taenada';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-2@1.0/Tenada.woff2') format('woff2');
+    font-weight: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Yangjin';
+    src: url('https://cdn.jsdelivr.net/gh/supernovice-lab/font@0.9/yangjin.woff') format('woff');
+    font-weight: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Yeongwol';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2507-2@1.0/YeongwolTTF-Regular.woff2') format('woff2');
+    font-weight: normal; font-display: swap;
+  }
   @font-face {
     font-family: 'Aggravo';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroL.woff') format('woff');
@@ -725,17 +802,30 @@ function resetState() {
 
 const FONTS = [
   'A2z', 'Aggravo', 'Asta Sans', 'Cafe24Surround', 'Chiron GoRound TC',
-  'Diphylleia', 'GangwonEducationTteontteon', 'Gowun Dodum', 'Hahmlet', 'JoseonPalace',
-  'Nanum Myeongjo', 'Noto Sans KR', 'SeoulNotice',
-  'Song Myung', 'Sunflower',
+  'ChosunIlboMyungjo', 'Diphylleia', 'GangwonEducationTteontteon', 'Giants',
+  'Gowun Dodum', 'Hahmlet', 'Independent', 'JoseonPalace',
+  'Nanum Myeongjo', 'Noto Sans KR', 'PyeojinGothic', 'Ridibatang',
+  'SchoolSafetyNotification', 'SchoolSafetyRoundedSmile', 'SeoulNotice',
+  'Song Myung', 'Sunflower', 'Taenada', 'Wanted Sans', 'Yangjin', 'Yeongwol',
 ];
 const FONT_LINKS = {
   'A2z': 'https://freesentation.blog/a2z',
   'Aggravo': 'https://sandbox.co.kr/font',
   'Cafe24Surround': 'https://fonts.cafe24.com/',
+  'ChosunIlboMyungjo': 'https://event.chosun.com/100/100font.html',
   'GangwonEducationTteontteon': 'https://www.gwe.go.kr/main/content.do?key=m2307211207715',
+  'Giants': 'https://www.giantsclub.com/html/?pcode=1007',
+  'Independent': 'https://font.co.kr/collection/freeFont?page=1&page_move=1&cate_idx=&pd_idx=&lc_font=&lc_users=&lc_range=&lc_term=&lc_scale=&price_users=&view_mode=list&view_image_mode=&stx=Yoon%C2%AE&filter_range=32&ordby=regdate&ex_txt=1',
   'JoseonPalace': 'https://event.chosun.com/100/100font.html',
+  'PyeojinGothic': 'https://notforall.tistory.com/m/7',
+  'Ridibatang': 'https://ridicorp.com/ridibatang/',
+  'SchoolSafetyNotification': 'https://copyright.keris.or.kr/wft/fntDwnldView?fntGrpId=GFT202408200000000000007',
+  'SchoolSafetyRoundedSmile': 'https://copyright.keris.or.kr/wft/fntDwnldView?fntGrpId=GFT202408200000000000003',
   'SeoulNotice': 'https://www.seoul.go.kr/seoul/font.do',
+  'Taenada': 'https://blog.naver.com/tenada/222849825644',
+  'Wanted Sans': 'https://github.com/wanteddev/wanted-sans',
+  'Yangjin': 'https://www.supernovice.org/font/?ckattempt=1',
+  'Yeongwol': 'https://www.yw.go.kr/www/contents.do?key=1500',
 };
 
 const pcSidebarContent = document.getElementById('pcSidebarContent');

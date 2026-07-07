@@ -433,35 +433,6 @@
     .pc-font-lock svg circle { fill: none; transition: fill 0.15s; }
     .pc-font-lock.locked svg circle { fill: currentColor; }
 
-    .pc-font-dropdown {
-      display: none;
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 80px;
-      background: #fff;
-      overflow-y: auto;
-      z-index: 100;
-    }
-    .pc-font-dropdown-item {
-      padding: 0 44px;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      font-size: 30px;
-      font-weight: 300;
-      color: #222;
-      cursor: pointer;
-      border-bottom: 1px solid #1a1a1a;
-      white-space: nowrap;
-      gap: 0;
-    }
-    .pc-font-dropdown-item a {
-      color: inherit;
-      text-decoration: none;
-      margin-left: 0.3em;
-    }
-    .pc-font-dropdown-item:hover { color: #999; }
-    .pc-font-dropdown-item:hover a { color: #999; }
-    .pc-font-dropdown-item.active { font-weight: 700; }
 
     /* Right panel — fills remaining 50% */
     .pc-right {
@@ -673,11 +644,7 @@
     body.dark .pc-font-lock,
     body.dark .pc-type-btn,
     body.dark .pc-dark-btn { color: #ccc; }
-    body.dark .pc-font-dropdown { background: #1a1a1a; }
-    body.dark .pc-font-dropdown-item { color: #ccc; border-bottom-color: #333; }
-    body.dark .pc-font-dropdown-item:hover { color: #666; }
-    body.dark .pc-font-dropdown-item a { color: inherit; }
-    body.dark .pc-font-info a:hover,
+body.dark .pc-font-info a:hover,
     body.dark .pc-type-btn:hover,
     body.dark .pc-dark-btn:hover { color: #666; }
     body.dark .type-page { background: #1a1a1a; box-shadow: inset 0 0 0 1px #333; }
@@ -706,8 +673,7 @@
       </div>
     </div>
     <button class="pc-dark-btn" id="pcDarkBtn">Dark</button>
-    <div class="pc-font-dropdown" id="pcFontDropdown"></div>
-    <div class="pc-font-info" id="pcFontInfo">
+<div class="pc-font-info" id="pcFontInfo">
       <a id="pcFontLink" target="_blank" rel="noopener"></a>
       <button class="pc-font-lock" id="pcFontLock" title="폰트 고정">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor"/></svg>
@@ -892,9 +858,8 @@ let currentFont = null;
 let fontLocked = false;
 let lockedFont = null;
 
-const pcFontLink     = document.getElementById('pcFontLink');
-const pcFontLock     = document.getElementById('pcFontLock');
-const pcFontDropdown = document.getElementById('pcFontDropdown');
+const pcFontLink = document.getElementById('pcFontLink');
+const pcFontLock = document.getElementById('pcFontLock');
 
 function setPassageFont(font) {
   passageText.style.fontFamily = `'${font}', sans-serif`;
@@ -908,47 +873,7 @@ function applyFont(font) {
   const url = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
   pcFontLink.href = url;
   pcFontLink.innerHTML = `${font}&nbsp;↗`;
-  pcFontDropdown.querySelectorAll('.pc-font-dropdown-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.font === font);
-  });
 }
-
-// Font sidebar
-(function() {
-  FONTS.forEach(font => {
-    const url = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
-    const item = document.createElement('div');
-    item.className = 'pc-font-dropdown-item';
-    item.dataset.font = font;
-    item.innerHTML = `${font}<a href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a>`;
-    item.addEventListener('mouseenter', () => setPassageFont(font));
-    item.addEventListener('click', () => {
-      applyFont(font);
-      fontLocked = true;
-      lockedFont = font;
-      pcFontLock.classList.add('locked');
-      hideDropdown();
-    });
-    pcFontDropdown.appendChild(item);
-  });
-
-  let dropdownTimer;
-  function showDropdown() {
-    clearTimeout(dropdownTimer);
-    pcFontDropdown.style.display = 'block';
-  }
-  function hideDropdown() {
-    dropdownTimer = setTimeout(() => {
-      pcFontDropdown.style.display = 'none';
-      if (currentFont) setPassageFont(currentFont);
-    }, 150);
-  }
-
-  document.getElementById('pcFontInfo').addEventListener('mouseenter', showDropdown);
-  document.getElementById('pcFontInfo').addEventListener('mouseleave', hideDropdown);
-  pcFontDropdown.addEventListener('mouseenter', () => clearTimeout(dropdownTimer));
-  pcFontDropdown.addEventListener('mouseleave', hideDropdown);
-})();
 
 // Lock button (toggle unlock)
 pcFontLock.addEventListener('click', (e) => {

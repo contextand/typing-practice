@@ -945,7 +945,7 @@ function applyFont(font) {
   setPassageFont(font);
   const url = FONT_LINKS[font] || 'https://fonts.google.com/specimen/' + font.replace(/ /g, '+');
   pcFontLink.href = url;
-  pcFontLink.innerHTML = `${font}&nbsp;↗`;
+  pcFontLink.textContent = font;
 }
 
 // Lock button (toggle unlock)

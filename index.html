@@ -371,6 +371,8 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      background: #fff;
+      transition: background 0.2s;
     }
 
     .pc-book {
@@ -393,10 +395,27 @@
       line-height: 0;
       flex-shrink: 0;
       transition: color 0.15s;
+      position: relative;
     }
     .pc-book-lock:hover { color: #999; }
     .pc-book-lock svg circle { fill: none; transition: fill 0.15s; }
     .pc-book-lock.locked svg circle { fill: currentColor; }
+    .pc-book-lock:not(.locked)::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 300;
+      color: #222;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 200;
+    }
+    .pc-book-lock:not(.locked):hover::after { opacity: 1; }
 
     .pc-book-meta {
       font-size: 15px;
@@ -413,14 +432,15 @@
 
     .pc-font-info {
       position: absolute;
-      bottom: 35px;
+      bottom: 128px;
       left: 44px;
       font-size: 30px;
       font-weight: 300;
       color: #222;
       display: flex;
-      align-items: center;
-      gap: 35px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
       z-index: 101;
     }
 
@@ -443,25 +463,58 @@
       line-height: 0;
       flex-shrink: 0;
       transition: color 0.15s;
+      margin-bottom: 18px;
+      position: relative;
     }
     .pc-font-lock:hover { color: #999; }
     .pc-font-lock svg circle { fill: none; transition: fill 0.15s; }
     .pc-font-lock.locked svg circle { fill: currentColor; }
+    .pc-font-lock:not(.locked)::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 300;
+      color: #222;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 200;
+    }
+    .pc-font-lock:not(.locked):hover::after { opacity: 1; }
 
     .pc-sliders {
       position: absolute;
-      bottom: 120px;
+      bottom: 35px;
       left: 44px;
       right: 54px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 7px;
       z-index: 101;
+    }
+    .pc-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .pc-slider-val {
+      font-size: 15px;
+      font-weight: 300;
+      color: #222;
+      white-space: nowrap;
+      width: 60px;
+      flex-shrink: 0;
+      text-align: left;
     }
     .pc-slider {
       -webkit-appearance: none;
       appearance: none;
-      width: 100%;
+      flex: 1;
+      width: 0;
       height: 1px;
       background: linear-gradient(to right, #222 50%, #ddd 50%);
       outline: none;
@@ -491,6 +544,8 @@
       overflow-y: auto;
       overflow-x: hidden;
       position: relative;
+      background: #fff;
+      transition: background 0.2s;
     }
 
     /* Invisible textarea covers right panel for click-to-type */
@@ -529,7 +584,7 @@
     /* Type button in sidebar bottom-right */
     .pc-type-btn {
       position: absolute;
-      bottom: 35px;
+      bottom: 128px;
       right: 54px;
       font-size: 30px;
       font-weight: 300;
@@ -657,8 +712,8 @@
     /* Dark mode button */
     .pc-dark-btn {
       position: absolute;
-      top: 46px;
-      right: 54px;
+      top: 12px;
+      right: 16px;
       font-size: 15px;
       font-weight: 300;
       color: #222;
@@ -671,56 +726,120 @@
       z-index: 101;
     }
     .pc-dark-btn:hover { color: #999; }
+    .pc-right-dark-btn {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      font-size: 15px;
+      font-weight: 300;
+      color: #222;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+      transition: color 0.15s;
+      z-index: 101;
+    }
+    .pc-right-dark-btn:hover { color: #999; }
   }
-
-  /* ── QUOTES MODE ─────────────────────────────────── */
-  body.quotes-yellow { background: #ffde59; }
-  body.quotes-green  { background: #7ed957; }
-  body.quotes-yellow .char,
-  body.quotes-green  .char { color: rgba(0,0,0,0.2); }
-  body.quotes-yellow .char.correct,
-  body.quotes-green  .char.correct { color: #1a1a1a; }
-  body.quotes-yellow .char.wrong,
-  body.quotes-green  .char.wrong { color: rgba(0,0,0,0.2); }
-  body.quotes-yellow .pc-slider,
-  body.quotes-green  .pc-slider { background: linear-gradient(to right, #222 50%, rgba(0,0,0,0.2) 50%); }
 
   /* ── DARK MODE ────────────────────────────────────── */
-  body.dark {
-    background: #1a1a1a;
-    color: #ccc;
-  }
-  body.dark .char { color: #555; }
-  body.dark .char.correct { color: #ddd; }
-  body.dark .char.composing::before { color: #ddd; }
-  body.dark .char.cursor-after::after,
-  body.dark .char.cursor-before::before { background: #ddd; }
-
   @media (min-width: 1001px) {
-    body.dark .pc-layout { box-shadow: inset 0 0 0 1px #333; }
-    body.dark .pc-layout::after { background: #333; }
-    body.dark .pc-book-title,
-    body.dark .pc-book-meta,
-    body.dark .pc-book-lock { color: #ccc; }
-    body.dark .pc-font-info,
-    body.dark .pc-font-info a,
-    body.dark .pc-font-lock,
-    body.dark .pc-type-btn,
-    body.dark .pc-dark-btn { color: #ccc; }
-body.dark .pc-font-info a:hover,
-    body.dark .pc-type-btn:hover,
-    body.dark .pc-dark-btn:hover { color: #666; }
-    body.dark .type-page { background: #1a1a1a; box-shadow: inset 0 0 0 1px #333; }
-    body.dark .type-header { border-bottom-color: #333; }
-    body.dark .type-title,
-    body.dark .type-close { color: #ccc; }
-    body.dark .type-close:hover { color: #666; }
-    body.dark .type-input { color: #ddd; }
-    body.dark .type-input::placeholder { color: #444; }
-    body.dark .type-row { border-bottom-color: #333; }
-    body.dark .type-row-name a { color: #888; }
-    body.dark .type-row-name a:hover { color: #666; }
-    body.dark .pc-slider { background: linear-gradient(to right, #ccc 50%, #444 50%); }
+    /* ── LEFT dark mode ───────────────────────────── */
+    body.left-dark .pc-sidebar { background: #1a1a1a; }
+    body.left-dark .pc-layout { box-shadow: inset 0 0 0 1px #333; }
+    body.left-dark .pc-layout::after { background: #333; }
+    body.left-dark .pc-book-title,
+    body.left-dark .pc-book-meta,
+    body.left-dark .pc-book-lock { color: #ccc; }
+    body.left-dark .pc-book-lock:not(.locked)::after,
+    body.left-dark .pc-font-lock:not(.locked)::after { color: #ccc; }
+    body.left-dark .pc-font-info,
+    body.left-dark .pc-font-info a,
+    body.left-dark .pc-font-lock,
+    body.left-dark .pc-type-btn,
+    body.left-dark .pc-dark-btn { color: #ccc; }
+    body.left-dark .pc-font-info a:hover,
+    body.left-dark .pc-type-btn:hover,
+    body.left-dark .pc-dark-btn:hover { color: #666; }
+    body.left-dark .pc-slider-val { color: #ccc; }
+    body.left-dark .type-page { background: #1a1a1a; box-shadow: inset 0 0 0 1px #333; }
+    body.left-dark .type-header { border-bottom-color: #333; }
+    body.left-dark .type-title,
+    body.left-dark .type-close { color: #ccc; }
+    body.left-dark .type-close:hover { color: #666; }
+    body.left-dark .type-input { color: #ddd; }
+    body.left-dark .type-input::placeholder { color: #444; }
+    body.left-dark .type-row { border-bottom-color: #333; }
+    body.left-dark .type-row-name a { color: #888; }
+    body.left-dark .type-row-name a:hover { color: #666; }
+
+    /* ── RIGHT dark mode ──────────────────────────── */
+    body.right-dark .pc-right { background: #1a1a1a; }
+    body.right-dark .pc-right-dark-btn { color: #ccc; }
+    body.right-dark .pc-right-dark-btn:hover { color: #666; }
+    body.right-dark .char { color: #555; }
+    body.right-dark .char.correct { color: #ddd; }
+    body.right-dark .char.composing::before { color: #ddd; }
+    body.right-dark .char.cursor-after::after,
+    body.right-dark .char.cursor-before::before { background: #ddd; }
+
+    /* ── LEFT quotes mode ─────────────────────────── */
+    body.left-yellow .pc-sidebar { background: #ffde59; }
+    body.left-green  .pc-sidebar { background: #7ed957; }
+    body.left-yellow .pc-book-title,
+    body.left-yellow .pc-book-meta,
+    body.left-yellow .pc-book-lock,
+    body.left-yellow .pc-font-info,
+    body.left-yellow .pc-font-info a,
+    body.left-yellow .pc-font-lock,
+    body.left-yellow .pc-type-btn,
+    body.left-yellow .pc-dark-btn,
+    body.left-yellow .pc-slider-val { color: #222; }
+    body.left-green  .pc-book-title,
+    body.left-green  .pc-book-meta,
+    body.left-green  .pc-book-lock,
+    body.left-green  .pc-font-info,
+    body.left-green  .pc-font-info a,
+    body.left-green  .pc-font-lock,
+    body.left-green  .pc-type-btn,
+    body.left-green  .pc-dark-btn,
+    body.left-green  .pc-slider-val { color: #222; }
+    body.left-yellow .pc-layout { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+    body.left-green  .pc-layout { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+    body.left-yellow .pc-layout::after { background: rgba(0,0,0,0.15); }
+    body.left-green  .pc-layout::after { background: rgba(0,0,0,0.15); }
+    body.left-yellow .pc-slider,
+    body.left-green  .pc-slider { background: linear-gradient(to right, #222 50%, rgba(0,0,0,0.2) 50%); }
+    body.left-yellow .type-page { background: #ffde59; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+    body.left-green  .type-page { background: #7ed957; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+    body.left-yellow .type-header,
+    body.left-green  .type-header { border-bottom-color: rgba(0,0,0,0.15); }
+    body.left-yellow .type-row,
+    body.left-green  .type-row { border-bottom-color: rgba(0,0,0,0.15); }
+    body.left-yellow .type-input::placeholder,
+    body.left-green  .type-input::placeholder { color: rgba(0,0,0,0.25); }
+    body.left-yellow .type-row-name a,
+    body.left-green  .type-row-name a { color: rgba(0,0,0,0.4); }
+
+    /* ── RIGHT quotes mode ────────────────────────── */
+    body.right-yellow .pc-right { background: #ffde59; }
+    body.right-green  .pc-right { background: #7ed957; }
+    body.right-yellow .pc-right-dark-btn,
+    body.right-green  .pc-right-dark-btn { color: #222; }
+    body.right-yellow .char,
+    body.right-green  .char { color: rgba(0,0,0,0.2); }
+    body.right-yellow .char.correct,
+    body.right-green  .char.correct { color: #1a1a1a; }
+    body.right-yellow .char.wrong,
+    body.right-green  .char.wrong { color: rgba(0,0,0,0.2); }
+    body.right-yellow .char.composing::before,
+    body.right-green  .char.composing::before { color: #1a1a1a; }
+    body.right-yellow .char.cursor-after::after,
+    body.right-yellow .char.cursor-before::before,
+    body.right-green  .char.cursor-after::after,
+    body.right-green  .char.cursor-before::before { background: #1a1a1a; }
   }
 
 </style>
@@ -734,26 +853,37 @@ body.dark .pc-font-info a:hover,
       <div class="pc-book">
         <div class="pc-book-title" id="pcBookTitle"></div>
         <div class="pc-book-meta" id="pcBookMeta"></div>
-        <button class="pc-book-lock" id="pcBookLock" title="책 고정">
+        <button class="pc-book-lock" id="pcBookLock" data-tooltip="해당 책의 내용만 고정해서 봅니다.">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor"/></svg>
         </button>
       </div>
     </div>
     <button class="pc-dark-btn" id="pcDarkBtn">Dark</button>
     <div class="pc-sliders" id="pcSliders">
-      <input type="range" class="pc-slider" id="pcSliderLH" min="0" max="100" value="50">
-      <input type="range" class="pc-slider" id="pcSliderLS" min="0" max="100" value="50">
+      <div class="pc-slider-row">
+        <input type="range" class="pc-slider" id="pcSliderFS" min="0" max="100" value="50">
+        <span class="pc-slider-val" id="pcSliderFSVal">30px</span>
+      </div>
+      <div class="pc-slider-row">
+        <input type="range" class="pc-slider" id="pcSliderLH" min="0" max="100" value="50">
+        <span class="pc-slider-val" id="pcSliderLHVal">2.0</span>
+      </div>
+      <div class="pc-slider-row">
+        <input type="range" class="pc-slider" id="pcSliderLS" min="0" max="100" value="50">
+        <span class="pc-slider-val" id="pcSliderLSVal">0.02em</span>
+      </div>
     </div>
     <div class="pc-font-info" id="pcFontInfo">
-      <a id="pcFontLink" target="_blank" rel="noopener"></a>
-      <button class="pc-font-lock" id="pcFontLock" title="폰트 고정">
+      <button class="pc-font-lock" id="pcFontLock" data-tooltip="해당 폰트가 고정되어 적용됩니다.">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor"/></svg>
       </button>
+      <a id="pcFontLink" target="_blank" rel="noopener"></a>
     </div>
     <button class="pc-type-btn" id="pcTypeBtn">Type</button>
   </aside>
 
   <div class="pc-right" id="pcRight">
+    <button class="pc-right-dark-btn" id="pcRightDarkBtn">Dark</button>
     <div class="pc-passages-track" id="pcPassagesTrack">
       <div class="pc-current-slot" id="pcCurrentSlot">
         <div class="passage-text" id="passageText"></div>
@@ -970,13 +1100,23 @@ pcFontLock.addEventListener('click', (e) => {
 
 function applyPassage() {
   resetState();
-  document.body.classList.remove('quotes-yellow', 'quotes-green');
   if (current.book === quotesBook) {
-    document.body.classList.add('quotes-yellow');
-    pcDarkBtn.textContent = 'Green';
+    const alreadyInQuotes = document.body.classList.contains('left-yellow') || document.body.classList.contains('left-green');
+    if (!alreadyInQuotes) {
+      const wasLeftDark = document.body.classList.contains('left-dark');
+      const wasRightDark = document.body.classList.contains('right-dark');
+      document.body.classList.remove('left-dark', 'right-dark');
+      document.body.classList.add(wasLeftDark ? 'left-green' : 'left-yellow');
+      document.body.classList.add(wasRightDark ? 'right-green' : 'right-yellow');
+      pcDarkBtn.textContent = wasLeftDark ? 'Yellow' : 'Green';
+      pcRightDarkBtn.textContent = wasRightDark ? 'Yellow' : 'Green';
+    }
   } else {
-    pcDarkBtn.textContent = document.body.classList.contains('dark') ? 'Light' : 'Dark';
+    document.body.classList.remove('left-yellow', 'left-green', 'right-yellow', 'right-green');
+    pcDarkBtn.textContent = document.body.classList.contains('left-dark') ? 'Light' : 'Dark';
+    pcRightDarkBtn.textContent = document.body.classList.contains('right-dark') ? 'Light' : 'Dark';
   }
+  updateSliderBg(pcSliderFS);
   updateSliderBg(pcSliderLH);
   updateSliderBg(pcSliderLS);
 
@@ -1036,8 +1176,14 @@ function loadNext() {
 
 function loadPrev() {
   if (historyIdx <= 0) return;
+  // When book is locked, skip history entries from other books
+  let targetIdx = historyIdx - 1;
+  while (targetIdx > 0 && bookLocked && lockedBook && passageHistory[targetIdx].book !== lockedBook) {
+    targetIdx--;
+  }
+  if (bookLocked && lockedBook && passageHistory[targetIdx].book !== lockedBook) return;
   pageSlide('prev', () => {
-    historyIdx--;
+    historyIdx = targetIdx;
     current = passageHistory[historyIdx];
     applyPassage();
   });
@@ -1151,10 +1297,15 @@ function buildTypeList() {
 
 function updateTypeRows() {
   const val = typeInput.value;
-  const isDark = document.body.classList.contains('dark');
+  const isDark = document.body.classList.contains('left-dark');
+  const isQuotes = document.body.classList.contains('left-yellow') || document.body.classList.contains('left-green');
   typeList.querySelectorAll('.type-row-text').forEach(el => {
     el.textContent = val || PLACEHOLDER;
-    el.style.color = val ? (isDark ? '#ddd' : '#1a1a1a') : (isDark ? '#444' : '#ddd');
+    if (isQuotes) {
+      el.style.color = val ? '#1a1a1a' : 'rgba(0,0,0,0.25)';
+    } else {
+      el.style.color = val ? (isDark ? '#ddd' : '#1a1a1a') : (isDark ? '#444' : '#ddd');
+    }
   });
 }
 
@@ -1194,46 +1345,74 @@ if (location.hash === '#type') openTypePage();
 
 // ── Dark mode ─────────────────────────────────────────
 const pcDarkBtn = document.getElementById('pcDarkBtn');
+const pcRightDarkBtn = document.getElementById('pcRightDarkBtn');
+
 pcDarkBtn.addEventListener('click', () => {
-  if (document.body.classList.contains('quotes-yellow')) {
-    document.body.classList.replace('quotes-yellow', 'quotes-green');
+  if (document.body.classList.contains('left-yellow')) {
+    document.body.classList.replace('left-yellow', 'left-green');
     pcDarkBtn.textContent = 'Yellow';
-    updateSliderBg(pcSliderLH); updateSliderBg(pcSliderLS);
-  } else if (document.body.classList.contains('quotes-green')) {
-    document.body.classList.replace('quotes-green', 'quotes-yellow');
+    updateSliderBg(pcSliderFS); updateSliderBg(pcSliderLH); updateSliderBg(pcSliderLS);
+  } else if (document.body.classList.contains('left-green')) {
+    document.body.classList.replace('left-green', 'left-yellow');
     pcDarkBtn.textContent = 'Green';
-    updateSliderBg(pcSliderLH); updateSliderBg(pcSliderLS);
+    updateSliderBg(pcSliderFS); updateSliderBg(pcSliderLH); updateSliderBg(pcSliderLS);
   } else {
-    const isDark = document.body.classList.toggle('dark');
-    pcDarkBtn.textContent = isDark ? 'Light' : 'Dark';
+    const isLeftDark = document.body.classList.toggle('left-dark');
+    pcDarkBtn.textContent = isLeftDark ? 'Light' : 'Dark';
     updateTypeRows();
+    updateSliderBg(pcSliderFS);
     updateSliderBg(pcSliderLH);
     updateSliderBg(pcSliderLS);
   }
 });
 
+pcRightDarkBtn.addEventListener('click', () => {
+  if (document.body.classList.contains('right-yellow')) {
+    document.body.classList.replace('right-yellow', 'right-green');
+    pcRightDarkBtn.textContent = 'Yellow';
+  } else if (document.body.classList.contains('right-green')) {
+    document.body.classList.replace('right-green', 'right-yellow');
+    pcRightDarkBtn.textContent = 'Green';
+  } else {
+    const isRightDark = document.body.classList.toggle('right-dark');
+    pcRightDarkBtn.textContent = isRightDark ? 'Light' : 'Dark';
+  }
+});
+
 // Sliders — line-height & letter-spacing
+const pcSliderFS = document.getElementById('pcSliderFS');
 const pcSliderLH = document.getElementById('pcSliderLH');
 const pcSliderLS = document.getElementById('pcSliderLS');
 
 function updateSliderBg(slider) {
+  if (!slider) return;
   const pct = slider.value;
-  const dark = document.body.classList.contains('dark');
-  const quotes = document.body.classList.contains('quotes-yellow') || document.body.classList.contains('quotes-green');
+  const dark = document.body.classList.contains('left-dark');
+  const quotes = document.body.classList.contains('left-yellow') || document.body.classList.contains('left-green');
   const filled = dark ? '#ccc' : '#222';
   const empty  = dark ? '#444' : quotes ? 'rgba(0,0,0,0.2)' : '#ddd';
   slider.style.background = `linear-gradient(to right, ${filled} ${pct}%, ${empty} ${pct}%)`;
 }
 
+const pcSliderFSVal = document.getElementById('pcSliderFSVal');
+const pcSliderLHVal = document.getElementById('pcSliderLHVal');
+const pcSliderLSVal = document.getElementById('pcSliderLSVal');
 function applySliders() {
+  const fs = 16 + (pcSliderFS.value / 100) * 28;
   const lh = 1.0 + (pcSliderLH.value / 100) * 2.0;
   const ls = -0.08 + (pcSliderLS.value / 100) * 0.20;
+  passageText.style.fontSize = fs + 'px';
   passageText.style.lineHeight = lh;
   passageText.style.letterSpacing = ls + 'em';
+  pcSliderFSVal.textContent = Math.round(fs) + 'px';
+  pcSliderLHVal.textContent = lh.toFixed(1);
+  pcSliderLSVal.textContent = ls.toFixed(2) + 'em';
 }
 
+pcSliderFS.addEventListener('input', () => { updateSliderBg(pcSliderFS); applySliders(); });
 pcSliderLH.addEventListener('input', () => { updateSliderBg(pcSliderLH); applySliders(); });
 pcSliderLS.addEventListener('input', () => { updateSliderBg(pcSliderLS); applySliders(); });
+updateSliderBg(pcSliderFS);
 updateSliderBg(pcSliderLH);
 updateSliderBg(pcSliderLS);
 

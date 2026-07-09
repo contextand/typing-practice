@@ -1072,6 +1072,8 @@ const pcSidebarContent = document.getElementById('pcSidebarContent');
 let currentFont = null;
 let fontLocked = false;
 let lockedFont = null;
+let preQuotesLeftDark = false;
+let preQuotesRightDark = false;
 
 const pcFontLink = document.getElementById('pcFontLink');
 const pcFontLock = document.getElementById('pcFontLock');
@@ -1103,16 +1105,20 @@ function applyPassage() {
   if (current.book === quotesBook) {
     const alreadyInQuotes = document.body.classList.contains('left-yellow') || document.body.classList.contains('left-green');
     if (!alreadyInQuotes) {
-      const wasLeftDark = document.body.classList.contains('left-dark');
-      const wasRightDark = document.body.classList.contains('right-dark');
+      preQuotesLeftDark = document.body.classList.contains('left-dark');
+      preQuotesRightDark = document.body.classList.contains('right-dark');
       document.body.classList.remove('left-dark', 'right-dark');
-      document.body.classList.add(wasLeftDark ? 'left-green' : 'left-yellow');
-      document.body.classList.add(wasRightDark ? 'right-green' : 'right-yellow');
-      pcDarkBtn.textContent = wasLeftDark ? 'Yellow' : 'Green';
-      pcRightDarkBtn.textContent = wasRightDark ? 'Yellow' : 'Green';
+      document.body.classList.add(preQuotesLeftDark ? 'left-green' : 'left-yellow');
+      document.body.classList.add(preQuotesRightDark ? 'right-green' : 'right-yellow');
+      pcDarkBtn.textContent = preQuotesLeftDark ? 'Yellow' : 'Green';
+      pcRightDarkBtn.textContent = preQuotesRightDark ? 'Yellow' : 'Green';
     }
   } else {
     document.body.classList.remove('left-yellow', 'left-green', 'right-yellow', 'right-green');
+    if (preQuotesLeftDark) document.body.classList.add('left-dark');
+    if (preQuotesRightDark) document.body.classList.add('right-dark');
+    preQuotesLeftDark = false;
+    preQuotesRightDark = false;
     pcDarkBtn.textContent = document.body.classList.contains('left-dark') ? 'Light' : 'Dark';
     pcRightDarkBtn.textContent = document.body.classList.contains('right-dark') ? 'Light' : 'Dark';
   }
@@ -1162,8 +1168,18 @@ function pageSlide(dir, callback) {
 function loadNext() {
   function go() {
     if (historyIdx < passageHistory.length - 1) {
-      historyIdx++;
-      current = passageHistory[historyIdx];
+      let targetIdx = historyIdx + 1;
+      while (targetIdx < passageHistory.length - 1 && bookLocked && lockedBook && passageHistory[targetIdx].book !== lockedBook) {
+        targetIdx++;
+      }
+      if (bookLocked && lockedBook && passageHistory[targetIdx].book !== lockedBook) {
+        current = pick();
+        passageHistory.push(current);
+        historyIdx = passageHistory.length - 1;
+      } else {
+        historyIdx = targetIdx;
+        current = passageHistory[historyIdx];
+      }
     } else {
       current = pick();
       passageHistory.push(current);

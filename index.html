@@ -1215,6 +1215,10 @@ function addInputListeners(el) {
   });
   el.addEventListener('compositionend', () => {
     isComposing = false; composingChar = '';
+    const raw = el.value;
+    const target = current.text;
+    typed = raw.length > target.length ? raw.slice(0, target.length) : raw;
+    el.value = typed;
     render();
   });
   el.addEventListener('input', () => {

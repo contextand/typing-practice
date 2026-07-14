@@ -76,11 +76,6 @@
     font-weight: normal; font-display: swap;
   }
   @font-face {
-    font-family: 'Yangjin';
-    src: url('https://cdn.jsdelivr.net/gh/supernovice-lab/font@0.9/yangjin.woff') format('woff');
-    font-weight: normal; font-display: swap;
-  }
-  @font-face {
     font-family: 'Yeongwol';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2507-2@1.0/YeongwolTTF-Regular.woff2') format('woff2');
     font-weight: normal; font-display: swap;
@@ -432,7 +427,7 @@
 
     .pc-font-info {
       position: absolute;
-      bottom: 128px;
+      bottom: 35px;
       left: 44px;
       font-size: 30px;
       font-weight: 300;
@@ -491,7 +486,7 @@
       bottom: 35px;
       left: 44px;
       right: 54px;
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 7px;
       z-index: 101;
@@ -584,7 +579,7 @@
     /* Type button in sidebar bottom-right */
     .pc-type-btn {
       position: absolute;
-      bottom: 128px;
+      bottom: 35px;
       right: 54px;
       font-size: 30px;
       font-weight: 300;
@@ -598,6 +593,63 @@
       transition: color 0.15s;
     }
     .pc-type-btn:hover { color: #999; }
+
+    /* BookList button */
+    .pc-booklist-btn {
+      position: absolute;
+      left: 44px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      font-weight: 300;
+      letter-spacing: 80px;
+      color: #222;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+      transition: color 0.15s;
+      z-index: 101;
+      display: none;
+    }
+    .pc-booklist-btn:hover { color: #999; }
+
+    /* BookList overlay */
+    .pc-booklist-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.85);
+    }
+    .pc-booklist-overlay.open { display: flex; }
+    .pc-booklist-inner {
+      max-height: 80vh;
+      overflow-y: scroll;
+      text-align: center;
+      scrollbar-width: none;
+    }
+    .pc-booklist-inner::-webkit-scrollbar { display: none; }
+    .pc-booklist-item {
+      font-size: 15px;
+      font-weight: 300;
+      color: #222;
+      cursor: pointer;
+      padding: 6px 0;
+      line-height: 1.6;
+      transition: color 0.15s;
+      display: block;
+      background: none;
+      border: none;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+    }
+    .pc-booklist-item:hover { color: #999; }
 
     /* Type page overlay */
     .type-page {
@@ -759,10 +811,12 @@
     body.left-dark .pc-font-info a,
     body.left-dark .pc-font-lock,
     body.left-dark .pc-type-btn,
-    body.left-dark .pc-dark-btn { color: #ccc; }
+    body.left-dark .pc-dark-btn,
+    body.left-dark .pc-booklist-btn { color: #ccc; }
     body.left-dark .pc-font-info a:hover,
     body.left-dark .pc-type-btn:hover,
-    body.left-dark .pc-dark-btn:hover { color: #666; }
+    body.left-dark .pc-dark-btn:hover,
+    body.left-dark .pc-booklist-btn:hover { color: #666; }
     body.left-dark .pc-slider-val { color: #ccc; }
     body.left-dark .type-page { background: #1a1a1a; box-shadow: inset 0 0 0 1px #333; }
     body.left-dark .type-header { border-bottom-color: #333; }
@@ -796,6 +850,7 @@
     body.left-yellow .pc-font-lock,
     body.left-yellow .pc-type-btn,
     body.left-yellow .pc-dark-btn,
+    body.left-yellow .pc-booklist-btn,
     body.left-yellow .pc-slider-val { color: #222; }
     body.left-green  .pc-book-title,
     body.left-green  .pc-book-meta,
@@ -805,6 +860,7 @@
     body.left-green  .pc-font-lock,
     body.left-green  .pc-type-btn,
     body.left-green  .pc-dark-btn,
+    body.left-green  .pc-booklist-btn,
     body.left-green  .pc-slider-val { color: #222; }
     body.left-yellow .pc-layout { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
     body.left-green  .pc-layout { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
@@ -880,7 +936,13 @@
       <a id="pcFontLink" target="_blank" rel="noopener"></a>
     </div>
     <button class="pc-type-btn" id="pcTypeBtn">Type</button>
+    <button class="pc-booklist-btn" id="pcBookListBtn">BookList</button>
   </aside>
+
+  <!-- BookList overlay -->
+  <div class="pc-booklist-overlay" id="pcBookListOverlay">
+    <div class="pc-booklist-inner" id="pcBookListInner"></div>
+  </div>
 
   <div class="pc-right" id="pcRight">
     <button class="pc-right-dark-btn" id="pcRightDarkBtn">Dark</button>
@@ -981,6 +1043,50 @@ pcBookLock.addEventListener('click', () => {
   pcBookLock.classList.toggle('locked', bookLocked);
 });
 
+// ── BookList ──────────────────────────────────────────
+const pcBookListBtn = document.getElementById('pcBookListBtn');
+const pcBookListOverlay = document.getElementById('pcBookListOverlay');
+const pcBookListInner = document.getElementById('pcBookListInner');
+
+function openBookList() {
+  pcBookListInner.innerHTML = '';
+  BOOKS.forEach(book => {
+    const btn = document.createElement('button');
+    btn.className = 'pc-booklist-item';
+    btn.textContent = book.title;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      bookLocked = true;
+      lockedBook = book;
+      pcBookLock.classList.add('locked');
+      current = pick();
+      passageHistory.push(current);
+      historyIdx = passageHistory.length - 1;
+      applyPassage();
+      closeBookList();
+    });
+    pcBookListInner.appendChild(btn);
+  });
+  pcBookListOverlay.classList.add('open');
+}
+
+function closeBookList() {
+  pcBookListOverlay.classList.remove('open');
+}
+
+pcBookListBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (pcBookListOverlay.classList.contains('open')) {
+    closeBookList();
+  } else {
+    openBookList();
+  }
+});
+
+pcBookListOverlay.addEventListener('click', (e) => {
+  if (e.target === pcBookListOverlay) closeBookList();
+});
+
 function pick() {
   if (bookLocked && lockedBook) {
     const pool = ALL.filter(p => p.book === lockedBook);
@@ -1045,7 +1151,7 @@ const FONTS = [
   'Gowun Dodum', 'Hahmlet', 'Independent', 'JoseonPalace',
   'Nanum Myeongjo', 'Noto Sans KR', 'PyeojinGothic', 'Ridibatang',
   'SchoolSafetyNotification', 'SchoolSafetyRoundedSmile', 'SeoulNotice',
-  'Song Myung', 'Sunflower', 'Taenada', 'Wanted Sans', 'Yangjin', 'Yeongwol',
+  'Song Myung', 'Sunflower', 'Taenada', 'Wanted Sans', 'Yeongwol',
 ];
 const FONT_LINKS = {
   'A2z': 'https://freesentation.blog/a2z',
@@ -1063,7 +1169,6 @@ const FONT_LINKS = {
   'SeoulNotice': 'https://www.seoul.go.kr/seoul/font.do',
   'Taenada': 'https://blog.naver.com/tenada/222849825644',
   'Wanted Sans': 'https://github.com/wanteddev/wanted-sans',
-  'Yangjin': 'https://www.supernovice.org/font/?ckattempt=1',
   'Yeongwol': 'https://www.yw.go.kr/www/contents.do?key=1500',
 };
 

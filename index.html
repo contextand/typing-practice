@@ -369,7 +369,7 @@
       width: 50%;
       flex-shrink: 0;
       height: 100vh;
-      padding: 35px 0 35px 44px;
+      padding: 25px 0 35px 36px;
       display: flex;
       flex-direction: column;
       position: relative;
@@ -565,7 +565,7 @@
     }
 
     .pc-passages-track {
-      padding-top: 35px;
+      padding-top: 27px;
       padding-bottom: 35px;
       padding-left: 54px;
       padding-right: 60px;
@@ -921,7 +921,7 @@
         </button>
       </div>
     </div>
-    <button class="pc-dark-btn" id="pcDarkBtn">Dark</button>
+    <button class="pc-dark-btn" id="pcDarkBtn">D</button>
     <div class="pc-sliders" id="pcSliders">
       <div class="pc-slider-row">
         <input type="range" class="pc-slider" id="pcSliderFS" min="0" max="100" value="50">
@@ -952,7 +952,7 @@
   </div>
 
   <div class="pc-right" id="pcRight">
-    <button class="pc-right-dark-btn" id="pcRightDarkBtn">Dark</button>
+    <button class="pc-right-dark-btn" id="pcRightDarkBtn">D</button>
     <div class="pc-passages-track" id="pcPassagesTrack">
       <div class="pc-current-slot" id="pcCurrentSlot">
         <div class="passage-text" id="passageText"></div>
@@ -1223,8 +1223,8 @@ function applyPassage() {
       document.body.classList.remove('left-dark', 'right-dark');
       document.body.classList.add(preQuotesLeftDark ? 'left-green' : 'left-yellow');
       document.body.classList.add(preQuotesRightDark ? 'right-green' : 'right-yellow');
-      pcDarkBtn.textContent = preQuotesLeftDark ? 'Yellow' : 'Green';
-      pcRightDarkBtn.textContent = preQuotesRightDark ? 'Yellow' : 'Green';
+      pcDarkBtn.textContent = preQuotesLeftDark ? 'Y' : 'G';
+      pcRightDarkBtn.textContent = preQuotesRightDark ? 'Y' : 'G';
     }
   } else {
     document.body.classList.remove('left-yellow', 'left-green', 'right-yellow', 'right-green');
@@ -1232,8 +1232,8 @@ function applyPassage() {
     if (preQuotesRightDark) document.body.classList.add('right-dark');
     preQuotesLeftDark = false;
     preQuotesRightDark = false;
-    pcDarkBtn.textContent = document.body.classList.contains('left-dark') ? 'Light' : 'Dark';
-    pcRightDarkBtn.textContent = document.body.classList.contains('right-dark') ? 'Light' : 'Dark';
+    pcDarkBtn.textContent = document.body.classList.contains('left-dark') ? 'L' : 'D';
+    pcRightDarkBtn.textContent = document.body.classList.contains('right-dark') ? 'L' : 'D';
   }
   updateSliderBg(pcSliderFS);
   updateSliderBg(pcSliderLH);
@@ -1491,32 +1491,30 @@ const pcRightDarkBtn = document.getElementById('pcRightDarkBtn');
 pcDarkBtn.addEventListener('click', () => {
   if (document.body.classList.contains('left-yellow')) {
     document.body.classList.replace('left-yellow', 'left-green');
-    pcDarkBtn.textContent = 'Yellow';
+    pcDarkBtn.textContent = 'Y';
     updateSliderBg(pcSliderFS); updateSliderBg(pcSliderLH); updateSliderBg(pcSliderLS);
   } else if (document.body.classList.contains('left-green')) {
     document.body.classList.replace('left-green', 'left-yellow');
-    pcDarkBtn.textContent = 'Green';
+    pcDarkBtn.textContent = 'G';
     updateSliderBg(pcSliderFS); updateSliderBg(pcSliderLH); updateSliderBg(pcSliderLS);
   } else {
     const isLeftDark = document.body.classList.toggle('left-dark');
-    pcDarkBtn.textContent = isLeftDark ? 'Light' : 'Dark';
+    pcDarkBtn.textContent = isLeftDark ? 'L' : 'D';
     updateTypeRows();
-    updateSliderBg(pcSliderFS);
-    updateSliderBg(pcSliderLH);
-    updateSliderBg(pcSliderLS);
+    updateSliderBg(pcSliderFS); updateSliderBg(pcSliderLH); updateSliderBg(pcSliderLS);
   }
 });
 
 pcRightDarkBtn.addEventListener('click', () => {
   if (document.body.classList.contains('right-yellow')) {
     document.body.classList.replace('right-yellow', 'right-green');
-    pcRightDarkBtn.textContent = 'Yellow';
+    pcRightDarkBtn.textContent = 'Y';
   } else if (document.body.classList.contains('right-green')) {
     document.body.classList.replace('right-green', 'right-yellow');
-    pcRightDarkBtn.textContent = 'Green';
+    pcRightDarkBtn.textContent = 'G';
   } else {
     const isRightDark = document.body.classList.toggle('right-dark');
-    pcRightDarkBtn.textContent = isRightDark ? 'Light' : 'Dark';
+    pcRightDarkBtn.textContent = isRightDark ? 'L' : 'D';
   }
 });
 

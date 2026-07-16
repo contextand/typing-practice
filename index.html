@@ -1319,12 +1319,20 @@ function loadPrev() {
 }
 
 // ── IME & input handling (attached to both textareas) ──
+let rafPending = false;
+function scheduleRender() {
+  if (!rafPending) {
+    rafPending = true;
+    requestAnimationFrame(() => { rafPending = false; render(); });
+  }
+}
+
 function addInputListeners(el) {
   el.addEventListener('compositionstart', () => { isComposing = true; });
   el.addEventListener('compositionupdate', (e) => {
     const d = e.data || '';
     composingChar = d[d.length - 1] || '';
-    render();
+    scheduleRender();
   });
   el.addEventListener('compositionend', () => {
     isComposing = false; composingChar = '';
@@ -1332,7 +1340,7 @@ function addInputListeners(el) {
     const target = current.text;
     typed = raw.length > target.length ? raw.slice(0, target.length) : raw;
     el.value = typed;
-    render();
+    scheduleRender();
   });
   el.addEventListener('input', () => {
     const raw = el.value;
@@ -1344,7 +1352,7 @@ function addInputListeners(el) {
     } else {
       typed = completed;
     }
-    render();
+    scheduleRender();
   });
   el.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'Tab' || e.key === 'Enter') {

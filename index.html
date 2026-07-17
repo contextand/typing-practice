@@ -259,9 +259,10 @@
   .mobile-card {
     width: 100%;
     max-width: 480px;
-    border: 1px solid #ccc;
+    border: 1px solid #000;
     padding: 32px 28px 28px;
     box-sizing: border-box;
+    background: #fff;
     will-change: transform;
   }
 
@@ -271,7 +272,7 @@
   }
 
   .mobile-card-footer {
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #000;
     padding-top: 16px;
     margin-top: 28px;
   }
@@ -1197,13 +1198,16 @@ function randomMobileBg() {
   document.querySelector('.mobile-layout').style.background = color;
 }
 
+let isTouchSliding = false;
+
 function mobileSlide(dir, callback) {
+  if (isTouchSliding) { callback(); return; }
   if (isAnimating) return;
   isAnimating = true;
   const card = document.getElementById('mCard');
   const outX = dir === 'next' ? '-110%' : '110%';
   const inX  = dir === 'next' ? '110%'  : '-110%';
-  card.style.transition = 'transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease';
+  card.style.transition = 'transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease';
   card.style.transform = `translateX(${outX})`;
   card.style.opacity = '0';
   setTimeout(() => {
@@ -1214,13 +1218,13 @@ function mobileSlide(dir, callback) {
     randomMobileBg();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        card.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease';
+        card.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease';
         card.style.transform = 'translateX(0)';
         card.style.opacity = '1';
-        setTimeout(() => { isAnimating = false; }, 380);
+        setTimeout(() => { isAnimating = false; }, 320);
       });
     });
-  }, 320);
+  }, 270);
 }
 
 let isAnimating = false;
@@ -1357,14 +1361,59 @@ document.addEventListener('click', (e) => {
 window.addEventListener('focus', () => { if (isPc()) inputArea.focus(); });
 
 (function() {
-  let touchStartX = 0;
+  let startX = 0;
+  let isDragging = false;
   const card = document.getElementById('mCard');
+
   card.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].clientX;
+    if (isAnimating) return;
+    startX = e.touches[0].clientX;
+    isDragging = true;
+    card.style.transition = 'none';
   }, { passive: true });
+
+  card.addEventListener('touchmove', (e) => {
+    if (!isDragging || isAnimating) return;
+    const dx = e.touches[0].clientX - startX;
+    card.style.transform = `translateX(${dx}px)`;
+    card.style.opacity = String(Math.max(0.5, 1 - Math.abs(dx) / 280));
+  }, { passive: true });
+
   card.addEventListener('touchend', (e) => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 50) { dx < 0 ? loadNext() : loadPrev(); }
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const threshold = 60;
+    if (Math.abs(dx) > threshold && !isAnimating) {
+      const goNext = dx < 0;
+      const outX = goNext ? '-110%' : '110%';
+      const inX  = goNext ? '110%'  : '-110%';
+      isAnimating = true;
+      card.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease';
+      card.style.transform = `translateX(${outX})`;
+      card.style.opacity = '0';
+      setTimeout(() => {
+        card.style.transition = 'none';
+        card.style.transform = `translateX(${inX})`;
+        card.style.opacity = '0';
+        isTouchSliding = true;
+        if (goNext) loadNext(); else loadPrev();
+        isTouchSliding = false;
+        randomMobileBg();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            card.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease';
+            card.style.transform = 'translateX(0)';
+            card.style.opacity = '1';
+            setTimeout(() => { isAnimating = false; }, 320);
+          });
+        });
+      }, 210);
+    } else {
+      card.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease';
+      card.style.transform = 'translateX(0)';
+      card.style.opacity = '1';
+    }
   });
 })();
 

@@ -253,7 +253,7 @@
     padding: 32px 20px;
     user-select: none;
     overflow: hidden;
-    transition: background 0.4s ease;
+    background: #fff;
   }
 
   .mobile-card {
@@ -1186,23 +1186,7 @@ function applyPassage() {
   }
 }
 
-const MOBILE_BG_COLORS = [
-  '#fdf3e7', '#e8f4fd', '#edfaf1', '#fde8f4', '#f0eafd',
-  '#fdfde8', '#e8fdfd', '#fde8e8', '#eaf0fd', '#f5f0ea',
-];
-let lastMobileBg = '';
-function randomMobileBg() {
-  let color;
-  do { color = MOBILE_BG_COLORS[Math.floor(Math.random() * MOBILE_BG_COLORS.length)]; }
-  while (color === lastMobileBg);
-  lastMobileBg = color;
-  document.querySelector('.mobile-layout').style.background = color;
-}
-
-let isTouchSliding = false;
-
 function mobileSlide(dir, callback) {
-  if (isTouchSliding) { callback(); return; }
   if (isAnimating) return;
   isAnimating = true;
   const card = document.getElementById('mCard');
@@ -1216,7 +1200,6 @@ function mobileSlide(dir, callback) {
     card.style.transform = `translateX(${inX})`;
     card.style.opacity = '0';
     callback();
-    randomMobileBg();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         card.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease';
@@ -1362,58 +1345,26 @@ document.addEventListener('click', (e) => {
 window.addEventListener('focus', () => { if (isPc()) inputArea.focus(); });
 
 (function() {
-  let startX = 0;
-  let isDragging = false;
-  const card = document.getElementById('mCard');
+  let touchStartX = 0;
+  let touchStartY = 0;
 
   document.addEventListener('touchstart', (e) => {
-    if (isPc() || isAnimating) return;
-    startX = e.touches[0].clientX;
-    isDragging = true;
-    card.style.transition = 'none';
-  }, { passive: true });
-
-  document.addEventListener('touchmove', (e) => {
-    if (!isDragging || isAnimating) return;
-    const dx = e.touches[0].clientX - startX;
-    card.style.transform = `translateX(${dx}px)`;
-    card.style.opacity = String(Math.max(0.5, 1 - Math.abs(dx) / 280));
+    if (isPc()) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
   }, { passive: true });
 
   document.addEventListener('touchend', (e) => {
-    if (!isDragging) return;
-    isDragging = false;
-    const dx = e.changedTouches[0].clientX - startX;
-    const threshold = 60;
-    if (Math.abs(dx) > threshold && !isAnimating) {
-      const goNext = dx < 0;
-      const outX = goNext ? '-110%' : '110%';
-      const inX  = goNext ? '110%'  : '-110%';
-      isAnimating = true;
-      card.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease';
-      card.style.transform = `translateX(${outX})`;
-      card.style.opacity = '0';
-      setTimeout(() => {
-        card.style.transition = 'none';
-        card.style.transform = `translateX(${inX})`;
-        card.style.opacity = '0';
-        isTouchSliding = true;
-        if (goNext) loadNext(); else loadPrev();
-        isTouchSliding = false;
-        randomMobileBg();
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            card.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease';
-            card.style.transform = 'translateX(0)';
-            card.style.opacity = '1';
-            setTimeout(() => { isAnimating = false; }, 320);
-          });
-        });
-      }, 210);
-    } else {
-      card.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease';
-      card.style.transform = 'translateX(0)';
-      card.style.opacity = '1';
+    if (isPc() || isAnimating) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) return;
+    const x = e.changedTouches[0].clientX;
+    const w = window.innerWidth;
+    if (x < w / 4) {
+      loadPrev();
+    } else if (x > w * 3 / 4) {
+      loadNext();
     }
   });
 })();

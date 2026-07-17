@@ -267,20 +267,20 @@
   }
 
   @media (max-width: 1000px) {
-    .passage-text { font-size: 16px; line-height: 1.9; color: #444; }
+    .passage-text { font-size: 16px; line-height: 1.9; color: #444; font-weight: 500; }
     .type-page { display: none !important; }
   }
 
   .mobile-card-footer {
     border-top: 1px solid #000;
-    padding-top: 16px;
+    padding-top: 28px;
     margin-top: 28px;
   }
 
   .mobile-book-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 3px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 6px;
     color: #222;
   }
 
@@ -1365,21 +1365,21 @@ window.addEventListener('focus', () => { if (isPc()) inputArea.focus(); });
   let isDragging = false;
   const card = document.getElementById('mCard');
 
-  card.addEventListener('touchstart', (e) => {
-    if (isAnimating) return;
+  document.addEventListener('touchstart', (e) => {
+    if (isPc() || isAnimating) return;
     startX = e.touches[0].clientX;
     isDragging = true;
     card.style.transition = 'none';
   }, { passive: true });
 
-  card.addEventListener('touchmove', (e) => {
+  document.addEventListener('touchmove', (e) => {
     if (!isDragging || isAnimating) return;
     const dx = e.touches[0].clientX - startX;
     card.style.transform = `translateX(${dx}px)`;
     card.style.opacity = String(Math.max(0.5, 1 - Math.abs(dx) / 280));
   }, { passive: true });
 
-  card.addEventListener('touchend', (e) => {
+  document.addEventListener('touchend', (e) => {
     if (!isDragging) return;
     isDragging = false;
     const dx = e.changedTouches[0].clientX - startX;

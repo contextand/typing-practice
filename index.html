@@ -252,6 +252,8 @@
     min-height: 100vh;
     padding: 32px 20px;
     user-select: none;
+    overflow: hidden;
+    transition: background 0.4s ease;
   }
 
   .mobile-card {
@@ -260,10 +262,11 @@
     border: 1px solid #ccc;
     padding: 32px 28px 28px;
     box-sizing: border-box;
+    will-change: transform;
   }
 
   @media (max-width: 1000px) {
-    .passage-text { font-size: 18px; line-height: 1.9; }
+    .passage-text { font-size: 16px; line-height: 1.9; color: #444; }
     .type-page { display: none !important; }
   }
 
@@ -1181,11 +1184,50 @@ function applyPassage() {
   }
 }
 
+const MOBILE_BG_COLORS = [
+  '#fdf3e7', '#e8f4fd', '#edfaf1', '#fde8f4', '#f0eafd',
+  '#fdfde8', '#e8fdfd', '#fde8e8', '#eaf0fd', '#f5f0ea',
+];
+let lastMobileBg = '';
+function randomMobileBg() {
+  let color;
+  do { color = MOBILE_BG_COLORS[Math.floor(Math.random() * MOBILE_BG_COLORS.length)]; }
+  while (color === lastMobileBg);
+  lastMobileBg = color;
+  document.querySelector('.mobile-layout').style.background = color;
+}
+
+function mobileSlide(dir, callback) {
+  if (isAnimating) return;
+  isAnimating = true;
+  const card = document.getElementById('mCard');
+  const outX = dir === 'next' ? '-110%' : '110%';
+  const inX  = dir === 'next' ? '110%'  : '-110%';
+  card.style.transition = 'transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease';
+  card.style.transform = `translateX(${outX})`;
+  card.style.opacity = '0';
+  setTimeout(() => {
+    card.style.transition = 'none';
+    card.style.transform = `translateX(${inX})`;
+    card.style.opacity = '0';
+    callback();
+    randomMobileBg();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        card.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease';
+        card.style.transform = 'translateX(0)';
+        card.style.opacity = '1';
+        setTimeout(() => { isAnimating = false; }, 380);
+      });
+    });
+  }, 320);
+}
+
 let isAnimating = false;
 const pcTrack = document.getElementById('pcPassagesTrack');
 
 function pageSlide(dir, callback) {
-  if (!isPc()) { callback(); return; }
+  if (!isPc()) { mobileSlide(dir, callback); return; }
   if (isAnimating) return;
   isAnimating = true;
 

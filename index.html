@@ -1532,8 +1532,10 @@ updateSliderBg(pcSliderLS);
 current = pick();
 passageHistory.push(current);
 historyIdx = 0;
+fontLocked = true;
+lockedFont = 'Asta Sans';
 applyPassage();
-applyFont('Asta Sans');
+pcFontLock.classList.add('locked');
 </script>
 </body>
 </html>

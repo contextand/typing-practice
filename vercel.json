@@ -1,8 +1,0 @@
-{
-  "buildCommand": "python3 build.py",
-  "outputDirectory": ".",
-  "installCommand": "",
-  "rewrites": [
-    { "source": "/config.yml", "destination": "/api/cms-config" }
-  ]
-}

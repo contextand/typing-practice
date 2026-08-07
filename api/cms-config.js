@@ -5,8 +5,7 @@ backend:
   name: github
   repo: contextand/typing-practice
   branch: main
-  base_url: https://typing-practice-lemon.vercel.app
-  auth_endpoint: /api/auth
+  base_url: https://api.decapcms.org
 
 locale: ko
 media_folder: admin/uploads

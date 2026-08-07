@@ -1348,24 +1348,12 @@ window.addEventListener('focus', () => { if (isPc()) inputArea.focus(); });
 // ── Allow text selection on right panel ───────────────
 (function() {
   const pcRight = document.querySelector('.pc-right');
-  let isDragging = false;
   pcRight.addEventListener('mousedown', () => {
-    isDragging = false;
-  });
-  pcRight.addEventListener('mousemove', (e) => {
-    if (e.buttons === 1) {
-      isDragging = true;
-      inputArea.style.pointerEvents = 'none';
-    }
+    inputArea.style.pointerEvents = 'none';
   });
   document.addEventListener('mouseup', () => {
-    if (isDragging) {
-      setTimeout(() => {
-        inputArea.style.pointerEvents = '';
-        inputArea.focus();
-      }, 300);
-      isDragging = false;
-    }
+    inputArea.style.pointerEvents = '';
+    inputArea.focus();
   });
 })();
 

@@ -505,21 +505,22 @@
       overflow-x: hidden;
       position: relative;
       background: #fff;
+      cursor: text;
       transition: background 0.2s;
     }
 
-    /* Invisible textarea covers right panel for click-to-type */
+    /* Invisible 1px textarea captures keystrokes without covering the panel */
     .pc-input {
-      position: absolute;
+      position: fixed;
       top: 0; left: 0;
-      width: 100%; height: 100%;
+      width: 1px; height: 1px;
       opacity: 0;
-      cursor: text;
+      pointer-events: none;
       resize: none;
       border: none;
       background: transparent;
       font-size: 18px;
-      z-index: 10;
+      z-index: 0;
     }
 
     .pc-passages-track {
@@ -1341,21 +1342,16 @@ document.addEventListener('keydown', (e) => {
 
 // ── Click / double-tap to focus ───────────────────────
 document.addEventListener('click', (e) => {
-  if (isPc() && !typePage.classList.contains('open') && !e.target.closest('a')) inputArea.focus();
+  if (!isPc() || typePage.classList.contains('open') || e.target.closest('a')) return;
+  // Don't steal focus while the user has text selected — focusing collapses it
+  const sel = window.getSelection();
+  if (sel && !sel.isCollapsed) return;
+  inputArea.focus();
 });
-window.addEventListener('focus', () => { if (isPc()) inputArea.focus(); });
-
-// ── Allow text selection on right panel ───────────────
-(function() {
-  const pcRight = document.querySelector('.pc-right');
-  pcRight.addEventListener('mousedown', () => {
-    inputArea.style.pointerEvents = 'none';
-  });
-  document.addEventListener('mouseup', () => {
-    inputArea.style.pointerEvents = '';
-    inputArea.focus();
-  });
-})();
+window.addEventListener('focus', () => {
+  const sel = window.getSelection();
+  if (isPc() && (!sel || sel.isCollapsed)) inputArea.focus();
+});
 
 (function() {
   let touchStartX = 0;

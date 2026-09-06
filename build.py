@@ -7,8 +7,7 @@ import urllib.parse
 SANITY_PROJECT_ID = "piwxcoph"
 SANITY_DATASET = "production"
 
-def fetch_books_from_sanity():
-    query = '*[_type=="book"]{title,author,genre,publisher,passages}|order(title asc)'
+def sanity_query(query):
     url = (
         f"https://{SANITY_PROJECT_ID}.api.sanity.io/v2024-01-01/data/query/{SANITY_DATASET}"
         f"?query={urllib.parse.quote(query)}"
@@ -16,6 +15,14 @@ def fetch_books_from_sanity():
     with urllib.request.urlopen(url) as resp:
         result = json.load(resp)
     return result["result"]
+
+
+def fetch_books_from_sanity():
+    return sanity_query('*[_type=="book"]{title,author,genre,publisher,passages}|order(title asc)')
+
+
+def fetch_quotes_from_sanity():
+    return sanity_query('*[_type=="quote"]{text}')
 
 
 def main():
@@ -27,9 +34,7 @@ def main():
     print(f"Total passages: {total_passages}")
 
     # Load quotes
-    quotes_path = os.path.join(os.path.dirname(__file__), "data", "quotes.json")
-    with open(quotes_path, encoding="utf-8") as f:
-        quotes = json.load(f)
+    quotes = fetch_quotes_from_sanity()
     quotes_json = json.dumps([q["text"] for q in quotes], ensure_ascii=False)
 
     # Generate HTML

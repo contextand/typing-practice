@@ -22,7 +22,8 @@ def fetch_books_from_sanity():
 
 
 def fetch_quotes_from_sanity():
-    return sanity_query('*[_type=="quote"]{text}')
+    groups = sanity_query('*[_type=="quote"]{quotes}')
+    return [text for group in groups for text in group.get("quotes", [])]
 
 
 def main():
@@ -34,8 +35,7 @@ def main():
     print(f"Total passages: {total_passages}")
 
     # Load quotes
-    quotes = fetch_quotes_from_sanity()
-    quotes_json = json.dumps([q["text"] for q in quotes], ensure_ascii=False)
+    quotes_json = json.dumps(fetch_quotes_from_sanity(), ensure_ascii=False)
 
     # Generate HTML
     data_json = json.dumps(books, ensure_ascii=False)

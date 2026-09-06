@@ -183,7 +183,7 @@ BOOK_PAGE_TEMPLATE = """<!DOCTYPE html>
 <div class="layout">
   <div class="list-pane">
     <div class="list-header">
-      <input type="text" class="search-input" id="searchInput" placeholder="책 이름, 글쓴이, 장르, 출판사 검색">
+      <input type="text" class="search-input" id="searchInput" placeholder="책 이름 검색">
       <div class="header-row">
         <span class="list-count" id="listCount"></span>
         <div class="sort-group">
@@ -220,8 +220,7 @@ function metaLine(book) {
 
 function matches(book) {
   if (!keyword) return true;
-  return [book.title, book.author, book.genre, book.publisher]
-    .some(v => (v || '').toLowerCase().includes(keyword));
+  return (book.title || '').toLowerCase().includes(keyword);
 }
 
 function byTitle(a, b) {

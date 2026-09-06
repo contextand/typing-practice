@@ -18,12 +18,239 @@ def sanity_query(query):
 
 
 def fetch_books_from_sanity():
-    return sanity_query('*[_type=="book"]{title,author,genre,publisher,passages}|order(title asc)')
+    return sanity_query(
+        '*[_type=="book"]{title,author,genre,publisher,organizedDate,passages}|order(title asc)'
+    )
 
 
 def fetch_quotes_from_sanity():
     groups = sanity_query('*[_type=="quote"]{quotes}')
     return [text for group in groups for text in group.get("quotes", [])]
+
+
+BOOK_PAGE_TEMPLATE = """<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>책 목록</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #fff;
+    color: #1a1a1a;
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .layout {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    box-shadow: inset 0 0 0 1px #1a1a1a;
+  }
+
+  /* Left: book list */
+  .list-pane {
+    width: 380px;
+    flex-shrink: 0;
+    height: 100vh;
+    border-right: 1px solid #1a1a1a;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .list-header {
+    flex-shrink: 0;
+    padding: 20px 24px;
+    border-bottom: 1px solid #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .list-count {
+    font-size: 13px;
+    font-weight: 300;
+    color: #999;
+  }
+
+  .sort-btn {
+    border: 1px solid #1a1a1a;
+    background: #fff;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 300;
+    color: #222;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .sort-btn:hover { background: #f5f5f5; }
+
+  .list-scroll {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .book-item {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e5e5;
+    cursor: pointer;
+  }
+
+  .book-item:hover { background: #f5f5f5; }
+  .book-item.active { background: #1a1a1a; }
+  .book-item.active .book-title { color: #fff; }
+  .book-item.active .book-date { color: #999; }
+
+  .book-title {
+    font-size: 16px;
+    font-weight: 300;
+    color: #222;
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
+  .book-date {
+    font-size: 12px;
+    font-weight: 300;
+    color: #999;
+  }
+
+  /* Right: passages */
+  .detail-pane {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 40px 48px 60px;
+  }
+
+  .passage {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: #1a1a1a;
+    margin-bottom: 40px;
+    white-space: pre-wrap;
+    word-break: keep-all;
+  }
+
+  .passage:last-child { margin-bottom: 0; }
+
+  .placeholder {
+    font-size: 14px;
+    font-weight: 300;
+    color: #bbb;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="list-pane">
+    <div class="list-header">
+      <span class="list-count" id="listCount"></span>
+      <button class="sort-btn" id="sortBtn">정리한 날 <span id="sortArrow">↓</span></button>
+    </div>
+    <div class="list-scroll" id="listScroll"></div>
+  </div>
+  <div class="detail-pane" id="detailPane">
+    <div class="placeholder">좌측에서 책을 선택하세요.</div>
+  </div>
+</div>
+
+<script>
+const BOOKS = __BOOKS_JSON__;
+
+const listScroll = document.getElementById('listScroll');
+const listCount = document.getElementById('listCount');
+const detailPane = document.getElementById('detailPane');
+const sortBtn = document.getElementById('sortBtn');
+const sortArrow = document.getElementById('sortArrow');
+
+let descending = true;
+let selected = null;
+
+function formatDate(iso) {
+  if (!iso) return '날짜 없음';
+  const [y, m, d] = iso.split('-');
+  return Number(y) + '년 ' + Number(m) + '월 ' + Number(d) + '일';
+}
+
+function sortBooks() {
+  BOOKS.sort((a, b) => {
+    const av = a.organizedDate || '';
+    const bv = b.organizedDate || '';
+    if (av === bv) return (a.title || '').localeCompare(b.title || '');
+    return descending ? bv.localeCompare(av) : av.localeCompare(bv);
+  });
+}
+
+function renderList() {
+  listScroll.innerHTML = '';
+  BOOKS.forEach(book => {
+    const item = document.createElement('div');
+    item.className = 'book-item' + (book === selected ? ' active' : '');
+    const title = document.createElement('div');
+    title.className = 'book-title';
+    title.textContent = book.title || '(제목 없음)';
+    const date = document.createElement('div');
+    date.className = 'book-date';
+    date.textContent = formatDate(book.organizedDate);
+    item.append(title, date);
+    item.addEventListener('click', () => selectBook(book));
+    listScroll.appendChild(item);
+  });
+}
+
+function selectBook(book) {
+  selected = book;
+  renderList();
+  detailPane.scrollTop = 0;
+  const passages = book.passages || [];
+  if (!passages.length) {
+    detailPane.innerHTML = '<div class="placeholder">발췌문이 없습니다.</div>';
+    return;
+  }
+  detailPane.innerHTML = '';
+  passages.forEach(text => {
+    const p = document.createElement('div');
+    p.className = 'passage';
+    p.textContent = text;
+    detailPane.appendChild(p);
+  });
+}
+
+sortBtn.addEventListener('click', () => {
+  descending = !descending;
+  sortArrow.textContent = descending ? '↓' : '↑';
+  sortBooks();
+  renderList();
+});
+
+listCount.textContent = BOOKS.length + '권';
+sortBooks();
+renderList();
+</script>
+</body>
+</html>
+"""
+
+
+def write_book_page(books, base_dir):
+    html = BOOK_PAGE_TEMPLATE.replace(
+        "__BOOKS_JSON__", json.dumps(books, ensure_ascii=False)
+    )
+    out_dir = os.path.join(base_dir, "book")
+    os.makedirs(out_dir, exist_ok=True)
+    with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:
+        f.write(html)
+    print("Generated book/index.html")
 
 
 def main():
@@ -1604,10 +1831,13 @@ pcFontLock.classList.add('locked');
 </html>
 """
 
-    out_path = os.path.join(os.path.dirname(__file__), "index.html")
+    base_dir = os.path.dirname(__file__)
+    out_path = os.path.join(base_dir, "index.html")
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"Generated index.html")
+
+    write_book_page(books, base_dir)
 
 
 if __name__ == "__main__":

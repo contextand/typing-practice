@@ -24,7 +24,7 @@
 
   /* Left: book list */
   .list-pane {
-    width: 380px;
+    width: 50%;
     flex-shrink: 0;
     height: 100vh;
     border-right: 1px solid #1a1a1a;
@@ -36,16 +36,38 @@
     flex-shrink: 0;
     padding: 20px 24px;
     border-bottom: 1px solid #1a1a1a;
+  }
+
+  .search-input {
+    width: 100%;
+    border: 1px solid #1a1a1a;
+    background: #fff;
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 300;
+    color: #222;
+    margin-bottom: 14px;
+  }
+
+  .search-input::placeholder { color: #bbb; }
+  .search-input:focus { outline: none; }
+
+  .header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
   }
 
   .list-count {
     font-size: 13px;
     font-weight: 300;
     color: #999;
+    flex-shrink: 0;
   }
+
+  .sort-group { display: flex; gap: 6px; }
 
   .sort-btn {
     border: 1px solid #1a1a1a;
@@ -59,9 +81,15 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    white-space: nowrap;
   }
 
   .sort-btn:hover { background: #f5f5f5; }
+
+  .sort-btn.active {
+    background: #1a1a1a;
+    color: #fff;
+  }
 
   .list-scroll {
     flex: 1;
@@ -77,7 +105,7 @@
   .book-item:hover { background: #f5f5f5; }
   .book-item.active { background: #1a1a1a; }
   .book-item.active .book-title { color: #fff; }
-  .book-item.active .book-date { color: #999; }
+  .book-item.active .book-meta { color: #999; }
 
   .book-title {
     font-size: 16px;
@@ -87,10 +115,11 @@
     margin-bottom: 4px;
   }
 
-  .book-date {
+  .book-meta {
     font-size: 12px;
     font-weight: 300;
     color: #999;
+    line-height: 1.5;
   }
 
   /* Right: passages */
@@ -102,7 +131,7 @@
   }
 
   .passage {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 300;
     line-height: 1.8;
     color: #1a1a1a;
@@ -124,8 +153,14 @@
 <div class="layout">
   <div class="list-pane">
     <div class="list-header">
-      <span class="list-count" id="listCount"></span>
-      <button class="sort-btn" id="sortBtn">정리한 날 <span id="sortArrow">↓</span></button>
+      <input type="text" class="search-input" id="searchInput" placeholder="책 이름, 글쓴이, 장르, 출판사 검색">
+      <div class="header-row">
+        <span class="list-count" id="listCount"></span>
+        <div class="sort-group">
+          <button class="sort-btn" data-key="date">정리한 날 <span></span></button>
+          <button class="sort-btn" data-key="title">이름 <span></span></button>
+        </div>
+      </div>
     </div>
     <div class="list-scroll" id="listScroll"></div>
   </div>
@@ -140,41 +175,64 @@ const BOOKS = [{"author": "에릭 올린 라이트", "genre": "사회정치", "o
 const listScroll = document.getElementById('listScroll');
 const listCount = document.getElementById('listCount');
 const detailPane = document.getElementById('detailPane');
-const sortBtn = document.getElementById('sortBtn');
-const sortArrow = document.getElementById('sortArrow');
+const searchInput = document.getElementById('searchInput');
+const sortBtns = document.querySelectorAll('.sort-btn');
 
-let descending = true;
+let sortKey = 'date';
+const directions = { date: 'desc', title: 'asc' };
+let keyword = '';
 let selected = null;
 
-function formatDate(iso) {
-  if (!iso) return '날짜 없음';
-  const [y, m, d] = iso.split('-');
-  return Number(y) + '년 ' + Number(m) + '월 ' + Number(d) + '일';
+function metaLine(book) {
+  const date = book.organizedDate ? book.organizedDate.replace(/-/g, '.') : null;
+  return [date, book.author, book.genre, book.publisher].filter(Boolean).join(' / ');
 }
 
-function sortBooks() {
-  BOOKS.sort((a, b) => {
+function matches(book) {
+  if (!keyword) return true;
+  return [book.title, book.author, book.genre, book.publisher]
+    .some(v => (v || '').toLowerCase().includes(keyword));
+}
+
+function byTitle(a, b) {
+  return (a.title || '').localeCompare(b.title || '', 'ko');
+}
+
+function visibleBooks() {
+  const dir = directions[sortKey] === 'desc' ? -1 : 1;
+  return BOOKS.filter(matches).sort((a, b) => {
+    if (sortKey === 'title') return byTitle(a, b) * dir;
     const av = a.organizedDate || '';
     const bv = b.organizedDate || '';
-    if (av === bv) return (a.title || '').localeCompare(b.title || '');
-    return descending ? bv.localeCompare(av) : av.localeCompare(bv);
+    if (av === bv) return byTitle(a, b);
+    return (av < bv ? -1 : 1) * dir;
   });
 }
 
 function renderList() {
+  const books = visibleBooks();
+  listCount.textContent = books.length + '권';
   listScroll.innerHTML = '';
-  BOOKS.forEach(book => {
+  books.forEach(book => {
     const item = document.createElement('div');
     item.className = 'book-item' + (book === selected ? ' active' : '');
     const title = document.createElement('div');
     title.className = 'book-title';
     title.textContent = book.title || '(제목 없음)';
-    const date = document.createElement('div');
-    date.className = 'book-date';
-    date.textContent = formatDate(book.organizedDate);
-    item.append(title, date);
+    const meta = document.createElement('div');
+    meta.className = 'book-meta';
+    meta.textContent = metaLine(book);
+    item.append(title, meta);
     item.addEventListener('click', () => selectBook(book));
     listScroll.appendChild(item);
+  });
+}
+
+function renderSortButtons() {
+  sortBtns.forEach(btn => {
+    const key = btn.dataset.key;
+    btn.classList.toggle('active', key === sortKey);
+    btn.querySelector('span').textContent = directions[key] === 'desc' ? '↓' : '↑';
   });
 }
 
@@ -196,15 +254,25 @@ function selectBook(book) {
   });
 }
 
-sortBtn.addEventListener('click', () => {
-  descending = !descending;
-  sortArrow.textContent = descending ? '↓' : '↑';
-  sortBooks();
+sortBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.key;
+    if (key === sortKey) {
+      directions[key] = directions[key] === 'desc' ? 'asc' : 'desc';
+    } else {
+      sortKey = key;
+    }
+    renderSortButtons();
+    renderList();
+  });
+});
+
+searchInput.addEventListener('input', () => {
+  keyword = searchInput.value.trim().toLowerCase();
   renderList();
 });
 
-listCount.textContent = BOOKS.length + '권';
-sortBooks();
+renderSortButtons();
 renderList();
 </script>
 </body>

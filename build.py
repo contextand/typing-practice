@@ -133,9 +133,7 @@ BOOK_PAGE_TEMPLATE = """<!DOCTYPE html>
   }
 
   .book-item:hover { background: #f5f5f5; }
-  .book-item.active { background: #1a1a1a; }
-  .book-item.active .book-title { color: #fff; }
-  .book-item.active .book-meta { color: #999; }
+  .book-item.active { background: #f5f5f5; }
 
   .book-title {
     font-size: 16px;

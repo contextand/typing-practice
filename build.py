@@ -485,6 +485,11 @@ def main():
     font-weight: normal; font-display: swap;
   }}
   @font-face {{
+    font-family: 'GounBatang';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff') format('woff');
+    font-weight: normal; font-display: swap;
+  }}
+  @font-face {{
     font-family: 'ElegantSerif';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2604-1@1.0/GraceSerif-Regular.woff2') format('woff2');
     font-weight: 500; font-display: swap;
@@ -1434,7 +1439,7 @@ function resetState() {{
 const FONTS = [
   'A2z', 'Aggravo', 'Asta Sans', 'Cafe24Surround', 'Chiron GoRound TC',
   'ChosunIlboMyungjo', 'Diphylleia', 'ElegantSerif', 'GangwonEducationTteontteon', 'Giants',
-  'Gowun Dodum', 'Hahmlet', 'Independent', 'JoseonLogo', 'JoseonPalace',
+  'GounBatang', 'Gowun Dodum', 'Hahmlet', 'Independent', 'JoseonLogo', 'JoseonPalace',
   'Library', 'Nanum Myeongjo', 'Noto Sans KR', 'PyeojinGothic', 'Ridibatang',
   'SchoolSafetyNotification', 'SchoolSafetyRoundedSmile', 'SeoulNotice',
   'Song Myung', 'Sunflower', 'Taenada', 'Wanted Sans', 'Yeongwol',
@@ -1445,6 +1450,7 @@ const FONT_LINKS = {{
   'Cafe24Surround': 'https://fonts.cafe24.com/',
   'ChosunIlboMyungjo': 'https://event.chosun.com/100/100font.html',
   'ElegantSerif': 'https://noonnu.cc/font_page/1800',
+  'GounBatang': 'https://github.com/yangheeryu/Gowun-Batang',
   'GangwonEducationTteontteon': 'https://www.gwe.go.kr/main/content.do?key=m2307211207715',
   'Giants': 'https://www.giantsclub.com/html/?pcode=1007',
   'Independent': 'https://font.co.kr/collection/freeFont?page=1&page_move=1&cate_idx=&pd_idx=&lc_font=&lc_users=&lc_range=&lc_term=&lc_scale=&price_users=&view_mode=list&view_image_mode=&stx=Yoon%C2%AE&filter_range=32&ordby=regdate&ex_txt=1',

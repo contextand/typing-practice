@@ -1210,20 +1210,23 @@ function mobileSlide(dir, callback) {
   if (isAnimating) return;
   isAnimating = true;
   const card = document.getElementById('mCard');
-  const outX = dir === 'next' ? '-110%' : '110%';
-  const inX  = dir === 'next' ? '110%'  : '-110%';
+  // 'up'/'down' = 같은 책 안에서 이동 (세로), 'next'/'prev' = 랜덤 이동 (가로)
+  const axis = (dir === 'up' || dir === 'down') ? 'Y' : 'X';
+  const fwd  = dir === 'next' || dir === 'down';
+  const outX = fwd ? '-110%' : '110%';
+  const inX  = fwd ? '110%'  : '-110%';
   card.style.transition = 'transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease';
-  card.style.transform = `translateX(${outX})`;
+  card.style.transform = `translate${axis}(${outX})`;
   card.style.opacity = '0';
   setTimeout(() => {
     card.style.transition = 'none';
-    card.style.transform = `translateX(${inX})`;
+    card.style.transform = `translate${axis}(${inX})`;
     card.style.opacity = '0';
     callback();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         card.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease';
-        card.style.transform = 'translateX(0)';
+        card.style.transform = 'none';
         card.style.opacity = '1';
         setTimeout(() => { isAnimating = false; }, 320);
       });
@@ -1291,6 +1294,21 @@ function loadPrev() {
   pageSlide('prev', () => {
     historyIdx = targetIdx;
     current = passageHistory[historyIdx];
+    applyPassage();
+  });
+}
+
+// 모바일: 현재 문장이 나온 책의 앞/뒤 문장으로 이동 (끝에서는 반대쪽으로 순환)
+function loadSibling(delta) {
+  const passages = current.book.passages;
+  if (passages.length < 2) return;
+  const idx = passages.indexOf(current.text);
+  const text = passages[(idx + delta + passages.length) % passages.length];
+  mobileSlide(delta > 0 ? 'down' : 'up', () => {
+    passageHistory.length = historyIdx + 1;
+    current = { text, book: current.book };
+    passageHistory.push(current);
+    historyIdx = passageHistory.length - 1;
     applyPassage();
   });
 }
@@ -1387,11 +1405,17 @@ window.addEventListener('focus', () => {
     const dy = e.changedTouches[0].clientY - touchStartY;
     if (Math.abs(dx) > 10 || Math.abs(dy) > 10) return;
     const x = e.changedTouches[0].clientX;
+    const y = e.changedTouches[0].clientY;
     const w = window.innerWidth;
+    const h = window.innerHeight;
     if (x < w / 4) {
       loadPrev();
     } else if (x > w * 3 / 4) {
       loadNext();
+    } else if (y < h / 4) {
+      loadSibling(-1);
+    } else if (y > h * 3 / 4) {
+      loadSibling(1);
     }
   });
 })();
